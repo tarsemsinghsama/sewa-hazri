@@ -1,0 +1,36 @@
+name: Auto Update Attendance
+
+on:
+  workflow_dispatch:
+  schedule:
+    # लगभग हर 5 मिनट में OneDrive Excel को check करता है
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install packages
+        run: pip install openpyxl requests
+
+      - name: Read FINAL sheet and update JSON
+        run: python update_data.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "attendance-auto-update"
+          git config user.email "actions@github.com"
+          git add data.json
+          git diff --cached --quiet || git commit -m "Auto update attendance"
+          git push
