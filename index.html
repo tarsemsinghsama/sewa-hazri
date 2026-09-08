@@ -24,7 +24,7 @@ button{padding:0 24px;border:0;border-radius:12px;background:#16733b;color:#fff;
 <div class="card">
 <h2>🔎 अपने बैज नं से हाज़री खोजें</h2>
 <div class="search">
-<input id="q" autocomplete="off" placeholder="SI5860LA0000 / SI5860GA0000">
+<input id="q" autocomplete="off" placeholder="SI5860LA0000 / SI5860GA0000 / SKP00000">
 <button onclick="searchBadge()">Search</button>
 </div>
 <div id="message"></div>
@@ -62,7 +62,7 @@ function searchBadge(){
   <div class="stat">शनिवार<b>${esc(x.saturday)}</b></div>
   <div class="stat">रविवार<b>${esc(x.sunday)}</b></div>
   <div class="stat">लिपाई<b>${esc(x.lipai)}</b></div>
-  <div class="stat">ब्यास<b>${esc(x.beas)}</b></div>
+  <div class="stat">ब्यास व अन्य<b>${esc(x.beas)}</b></div>
   </div></div>`;
 }
 document.getElementById("q").addEventListener("keydown",e=>{if(e.key==="Enter")searchBadge()});
