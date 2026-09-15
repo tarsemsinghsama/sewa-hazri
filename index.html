@@ -19,7 +19,7 @@ body::before{
   content:"";
   position:fixed;
   inset:0;
-  background-image:url("https://drive.google.com/uc?export=view&id=1h99GBiqzXiNPosXbhMpGQ1bQLe18shv9");
+  background-image:url(url:"https://drive.google.com/uc?export=view&id=1h99GBiqzXiNPosXbhMpGQ1bQLe18shv9");
   background-repeat:repeat;
   background-position:center;
   background-size:260px;
@@ -69,7 +69,7 @@ async function loadData(){
     if(!r.ok) throw Error();
     const j=await r.json();
     records=Array.isArray(j)?j:(j.records||[]);
-    document.getElementById("message").textContent="अपना बैज डालें👆";
+    document.getElementById("message").textContent="कृपया अपना बैज डालें";
   }catch(e){
     document.getElementById("message").innerHTML='<div class="err">❌ Attendance data लोड नहीं हुआ।</div>';
   }
