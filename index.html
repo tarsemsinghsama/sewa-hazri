@@ -51,7 +51,7 @@ button{padding:0 24px;border:0;border-radius:12px;background:#16733b;color:#fff;
 <div class="card">
 <h2>🔎 अपने बैज नं से हाज़री खोजें</h2>
 <div class="search">
-<input id="q" autocomplete="off" placeholder="बैज आईडी यहाँ डालें">
+<input id="q" autocomplete="off" placeholder="बैज आईडी यहाँ पर डालें">
 <button onclick="searchBadge()">Check Attendance</button>
 </div>
 <div id="message"></div>
@@ -69,7 +69,7 @@ async function loadData(){
     if(!r.ok) throw Error();
     const j=await r.json();
     records=Array.isArray(j)?j:(j.records||[]);
-    document.getElementById("message").textContent="कृपया अपना बैज डालें";
+    document.getElementById("message").textContent="आप बॉक्स में अपना बैज आईडी डालकर चैक अटेंडेंस पर क्लिक करें।";
   }catch(e){
     document.getElementById("message").innerHTML='<div class="err">❌ Attendance data लोड नहीं हुआ।</div>';
   }
