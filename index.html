@@ -166,7 +166,6 @@ function searchBadge() {
   }
     <!-- Page ka baaki content yahan hoga -->
 
-  <script>
     function doSearch() {
       const input = document.getElementById("searchInput");
       const searchValue = input.value; // Yeh wo text hai jo user ne search kiya hai
@@ -179,12 +178,7 @@ function searchBadge() {
         input.value = ""; 
       }
     }
-  </script>
-</body>
-</html>
-
-
-  const person = records.find(x => String(x.badge || "").trim().toUpperCase() === q);
+    const person = records.find(x => String(x.badge || "").trim().toUpperCase() === q);
 
   if (!person) {
     $("message").className = "message error";
