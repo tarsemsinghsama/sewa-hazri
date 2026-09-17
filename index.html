@@ -164,20 +164,7 @@ function searchBadge() {
     $("message").textContent = "कृपया अपना बैज नं डालकर Search करें।";
     return;
   }
-    <!-- Page ka baaki content yahan hoga -->
-
-    function doSearch() {
-      const input = document.getElementById("searchInput");
-      const searchValue = input.value; // Yeh wo text hai jo user ne search kiya hai
-
-      if (searchValue.trim() !== "") {
-        // Yahan aap apna search ka code ya kaam likh sakte hain
-        alert("Aapne search kiya: " + searchValue); // Udayaran ke liye
-        
-        // **Yeh line purane likhe hue text ko mitakar box ko khali kar degi:**
-        input.value = ""; 
-      }
-    }
+    
     const person = records.find(x => String(x.badge || "").trim().toUpperCase() === q);
 
   if (!person) {
