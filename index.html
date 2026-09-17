@@ -155,13 +155,8 @@ async function loadData() {
   }
 }
 
-function searchBadge const q = $("badgeInput").value.trim().toUpperCase();
 function searchBadge() {
   const q = $("badgeInput").value.trim().toUpperCase();
-  
-  // 👉 Yahan yeh line jod deni hai taaki search hote hi input box khali ho jaye
-  $("badgeInput").value = ""; 
-
   $("result").innerHTML = "";
 
   if (!q) {
@@ -169,7 +164,7 @@ function searchBadge() {
     $("message").textContent = "कृपया अपना बैज नं डालकर Search करें।";
     return;
   }
-    
+
   const person = records.find(x => String(x.badge || "").trim().toUpperCase() === q);
 
   if (!person) {
