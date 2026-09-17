@@ -22,7 +22,7 @@ body::before{
   background-repeat:no-repeat;
   background-position:center 56%;
   background-size:min(58vw,430px);
-  opacity:.30;
+  opacity:.20;
   pointer-events:none;
   z-index:0;
 }
@@ -114,7 +114,8 @@ button:active{transform:scale(.99)}
 <script>
 let records = [];
 
-const $ = id => document.getElementById(id);
+const clean=v=>String(v??"").trim().toUpperCase().replace(/\s+/g,"");
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 
 function num(v) {
   if (v === null || v === undefined || v === "") return 0;
