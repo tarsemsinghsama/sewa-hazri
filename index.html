@@ -155,8 +155,13 @@ async function loadData() {
   }
 }
 
+function searchBadge const q = $("badgeInput").value.trim().toUpperCase();
 function searchBadge() {
   const q = $("badgeInput").value.trim().toUpperCase();
+  
+  // 👉 Yahan yeh line jod deni hai taaki search hote hi input box khali ho jaye
+  $("badgeInput").value = ""; 
+
   $("result").innerHTML = "";
 
   if (!q) {
@@ -165,7 +170,7 @@ function searchBadge() {
     return;
   }
     
-    const person = records.find(x => String(x.badge || "").trim().toUpperCase() === q);
+  const person = records.find(x => String(x.badge || "").trim().toUpperCase() === q);
 
   if (!person) {
     $("message").className = "message error";
@@ -191,6 +196,7 @@ function searchBadge() {
       </div>
     </div>`;
 }
+
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
