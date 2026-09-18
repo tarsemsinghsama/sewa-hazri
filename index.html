@@ -44,14 +44,14 @@ footer::before, footer::after {
 .result-top{position:relative;z-index:2;padding:25px 18px 0}.back{border:0;background:transparent;color:var(--maroon);font-size:20px;font-weight:650;padding:5px 0;cursor:pointer}.back span{font-size:31px;vertical-align:-2px;margin-right:5px}.identity{text-align:center;margin-top:42px}.badge{font-size:32px;font-weight:850;letter-spacing:.2px;overflow-wrap:anywhere}.person-name{font-size:25px;font-weight:800;margin-top:5px}.parent-name{font-size:18px;color:#747d8c;margin-top:4px;font-weight:550}
 .summary{position:relative;z-index:2;width:min(100% - 28px,560px);margin:30px auto 0;border:1px solid rgba(222,226,232,.9);border-radius:16px;background:rgba(255,255,255,.58);box-shadow:0 7px 24px rgba(25,37,52,.08);overflow:hidden;backdrop-filter:blur(1.2px)}
 .summary h2{margin:0;padding:19px 20px 13px;color:var(--maroon);font-size:24px;line-height:1.2}.grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(218,223,229,.9)}.cell{min-height:90px;padding:13px 18px;text-align:center;border-right:1px solid rgba(218,223,229,.9);border-bottom:1px solid rgba(218,223,229,.9);background:rgba(255,255,255,.34)}.cell:nth-child(2n){border-right:0}.cell:nth-last-child(-n+2){border-bottom:0}.label{font-size:16px;font-weight:650;color:#303b4d}.value{font-size:29px;font-weight:850;margin-top:4px}.updated{text-align:center;position:relative;z-index:2;color:#687386;font-size:16px;margin:20px 12px 0}.calendar{font-size:19px;margin-right:7px}
-@media(max-width:520px){.top{padding-top:28px}.top-logo{width:56px;height:56px}.title{font-size:27px}.subtitle{font-size:22px}.content{margin-top:24px}.identity{margin-top:32px}.badge{font-size:28px}.person-name{font-size:23px}.parent-name{font-size:17px}.summary h2{font-size:22px}.cell{min-height:82px;padding:12px 8px}.label{font-size:15px}.value{font-size:27px}.footer:before,.footer:after{width:44px;margin:0 10px 3px}}
+@media(max-width:520px){.top{padding-top:28px}.top-logo{width:56px;height:56px}.title{font-size:27px}.subtitle{font-size:22px}.content{margin-top:24px}.identity{margin-top:32px}.badge{font-size:24px}.person-name{font-size:20px}.parent-name{font-size:18px}.summary h2{font-size:22px}.cell{min-height:82px;padding:12px 8px}.label{font-size:20px}.value{font-size:27px}.footer:before,.footer:after{width:44px;margin:0 10px 3px}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
 const DATA_URL='data.json';
-const UPDATED='Updated on September 18, 2026';
+const UPDATED='Last Updated on September 18, 2026';
 let records=null;
 const app=document.getElementById('app');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
