@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+FOOTERERCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -198,15 +198,17 @@ input{
 }
 
 /* ==============================
-   FOOTER
+   FOOTER #641b25
    ============================== */
 
-.footer{
-  text-align:center;
-  padding:14px 12px 18px;
-  color:#641b25;
-  font-size:13px;
-  font-weight:500;
+footer::before, footer::after {
+    content: "";
+    display: inline-block;
+    vertical-align: middle;
+    width: 68px;
+    height: 1px;
+    background: currentColor;
+    margin: 0 18px 3px;
 }
 
 /* ==============================
