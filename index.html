@@ -201,15 +201,16 @@ input{
    FOOTER #641b25
    ============================== */
 
-footer::before, footer::after {
-    content: "";
-    display: inline-block;
-    vertical-align: middle;
-    width: 68px;
-    height: 1px;
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    text-align: center;
+    padding: 12px 12px 24px;
     color:#641b25;
-    background: currentColor;
-    margin: 0 18px 3px;
+    ...
 }
 
 /* ==============================
