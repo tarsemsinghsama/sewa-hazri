@@ -71,43 +71,55 @@ function make(rows,info){
   const bc=info.c;
   const brow=rows[br]||[];
 
-  // MaleFemaleSKP structure
+  // Sheet structure:
   // Row 2 = Date
-  // Row 3 = Main Activity
+  // Row 3 = Activity
   // Row 4 = Special Activity
-  // Row 5 onward = Sewadar
+  // Row 5 onward = Sewadar data
 
-  const dateRow=rows[br-3]||[];
-  const activityRow=rows[br-2]||[];
-  const specialRow=rows[br-1]||[];
-  const monthRow=rows[br-4]||[];
+  const dr=findDateRow(rows,br);
+
+  if(dr<0){
+    return{
+      name:clean(brow[1]),
+      parent:clean(brow[2]),
+      out:[]
+    };
+  }
+
+  const ar=dr+1;   // Activity row
+  const sr=dr+2;   // Special activity row
+
+  const mr=findMonthRow(rows,dr);
+
+  let monthContext=null;
+  let current='';
 
   const name=clean(brow[1]);
   const parent=clean(brow[2]);
 
   const out=[];
-  let current='';
-  let monthContext=null;
 
   const max=Math.max(
-    monthRow.length,
-    dateRow.length,
-    activityRow.length,
-    specialRow.length,
-    brow.length
+    (rows[dr]||[]).length,
+    (rows[ar]||[]).length,
+    (rows[sr]||[]).length,
+    brow.length,
+    (rows[mr]||[]).length
   );
 
   for(let c=0;c<max;c++){
 
-    // Month
-    const monthCell=clean(monthRow[c]??'');
-
-    if(isMonthYear(monthCell)){
-      monthContext=monthYear(monthCell);
+    // Month / Year
+    if(
+      mr>=0 &&
+      isMonthYear(rows[mr]?.[c])
+    ){
+      monthContext=monthYear(rows[mr][c]);
     }
 
     // Date
-    const dateCell=clean(dateRow[c]??'');
+    const dateCell=clean(rows[dr]?.[c]??'');
 
     if(isDate(dateCell)){
       current=fmtDate(dateCell,monthContext);
@@ -115,10 +127,10 @@ function make(rows,info){
 
     if(!current)continue;
 
-    // Sewadar attendance
+    // Badge attendance/value
     const raw=clean(brow[c]??'');
 
-    // खाली cell छोड़ दें
+    // खाली cell बिल्कुल नहीं दिखाना
     if(raw==='')continue;
 
     const n=Number(raw.replace(/,/g,''));
@@ -126,23 +138,30 @@ function make(rows,info){
     // केवल 1 या उससे ज्यादा
     if(!Number.isFinite(n)||n<1)continue;
 
-    // Row 3
-    const main=act(activityRow[c]??'');
+    // Row 3 - Main Activity
+    const main=act(rows[ar]?.[c]??'');
 
-    // Row 4
-    const special=act(specialRow[c]??'');
+    // Row 4 - Special Activity
+    const special=act(rows[sr]?.[c]??'');
 
     let finalActivity='';
 
-    if(main&&special){
+    // दोनों हों
+    if(main && special){
       finalActivity=main+' '+special;
     }
+
+    // केवल main activity
     else if(main){
       finalActivity=main;
     }
+
+    // केवल special activity
     else if(special){
       finalActivity=special;
     }
+
+    // activity ही नहीं है तो नहीं दिखाना
     else{
       continue;
     }
