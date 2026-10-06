@@ -25,7 +25,7 @@ footer{position:relative;z-index:10;text-align:center;padding:12px 12px 24px;mar
 <div class="updated"><span class="calendar">▣</span>Live Data Updates</div><footer>Contact No.: +91 93156 64443</footer>
 </div>
 
-<script>
+  <script>
 const SHEET_ID='1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8';
 const SHEET_NAME='MaleFemaleSKP';
 
@@ -33,6 +33,11 @@ const params=new URLSearchParams(location.search);
 const BADGE_ID=(params.get('badge')||'').trim();
 
 const $=id=>document.getElementById(id);
+
+
+/* =========================
+   BASIC
+========================= */
 
 function clean(v){
   return String(v??'')
@@ -59,7 +64,7 @@ function esc(v){
 
 
 /* =========================
-   GOOGLE GVIZ DATA
+   GOOGLE SHEET
 ========================= */
 
 function parseGViz(text){
@@ -102,17 +107,19 @@ const MONTHS={
   dec:12,december:12
 };
 
-function monthYear(v){
+function getMonthYear(v){
 
-  const s=clean(v).replace(/_/g,' ');
+  const s=clean(v)
+    .replace(/_/g,' ');
 
   const m=s.match(
-    /^([A-Za-z]+)[ -]?(20\d{2})$/
+    /^([A-Za-z]+)[ -]?(20\d{2})$/i
   );
 
   if(!m)return null;
 
-  const mo=MONTHS[m[1].toLowerCase()];
+  const mo=
+    MONTHS[m[1].toLowerCase()];
 
   if(!mo)return null;
 
@@ -127,12 +134,14 @@ function monthYear(v){
    DATE
 ========================= */
 
-function parseDate(v,context){
+function getDate(v,context){
 
   const s=clean(v);
 
   if(!s)return null;
 
+
+  /* 07-10-2025 */
   let m=s.match(
     /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/
   );
@@ -149,6 +158,8 @@ function parseDate(v,context){
 
   }
 
+
+  /* 2025-10-07 */
   m=s.match(
     /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/
   );
@@ -163,6 +174,8 @@ function parseDate(v,context){
 
   }
 
+
+  /* Date(2025,9,7) */
   m=s.match(
     /^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/
   );
@@ -177,8 +190,10 @@ function parseDate(v,context){
 
   }
 
+
+  /* 07-Oct */
   m=s.match(
-    /^(\d{1,2})[- ]([A-Za-z]+)$/
+    /^(\d{1,2})[- ]([A-Za-z]+)$/i
   );
 
   if(m && context){
@@ -202,7 +217,7 @@ function parseDate(v,context){
 }
 
 
-function fmtDate(d){
+function formatDate(d){
 
   if(!d)return '';
 
@@ -211,19 +226,18 @@ function fmtDate(d){
     '-' +
     String(d.month).padStart(2,'0')+
     '-' +
-    d.year
+    String(d.year)
   );
 }
 
 
-function dateSort(d){
+function sortDate(d){
 
   return (
     d.year*10000+
     d.month*100+
     d.day
   );
-
 }
 
 
@@ -231,12 +245,13 @@ function dateSort(d){
    ACTIVITY
 ========================= */
 
-function activityName(v){
+function activity(v){
 
   const s=clean(v);
   const u=s.toUpperCase();
 
   if(!s)return '';
+
 
   if(
     u==='DAY' ||
@@ -246,6 +261,7 @@ function activityName(v){
     return 'दिन';
   }
 
+
   if(
     u==='NIGHT' ||
     u==='N' ||
@@ -254,12 +270,14 @@ function activityName(v){
     return 'रात';
   }
 
+
   if(
     u==='BEAS' ||
     s==='ब्यास'
   ){
     return 'ब्यास';
   }
+
 
   if(
     u.includes('SAHARANPUR') ||
@@ -268,12 +286,14 @@ function activityName(v){
     return 'सहारनपुर';
   }
 
+
   if(
     u.includes('BANGALORE') ||
     s.includes('बैंगलोर')
   ){
     return 'बैंगलोर';
   }
+
 
   if(
     u.includes('PORT BLAIR') ||
@@ -282,12 +302,14 @@ function activityName(v){
     return 'पोर्ट ब्लेयर';
   }
 
+
   if(
     u.includes('HUZUR DARSHAN') ||
     s.includes('हुजूर दर्शन')
   ){
     return 'हुजूर दर्शन';
   }
+
 
   if(
     u.includes('LIPAI') ||
@@ -296,20 +318,191 @@ function activityName(v){
     return 'लिपाई';
   }
 
+
   return s;
 }
 
 
 /* =========================
-   BADGE SEARCH
+   CHECK ACTIVITY
+========================= */
+
+function isActivity(v){
+
+  const s=clean(v).toUpperCase();
+
+  return (
+    s==='DAY' ||
+    s==='D' ||
+    s==='NIGHT' ||
+    s==='N' ||
+    s==='BEAS' ||
+    s==='दिन' ||
+    s==='रात' ||
+    s==='ब्यास' ||
+    s.includes('LIPAI') ||
+    s.includes('SAHARANPUR') ||
+    s.includes('BANGALORE') ||
+    s.includes('PORT BLAIR') ||
+    s.includes('HUZUR DARSHAN') ||
+    s.includes('लिपाई') ||
+    s.includes('सहारनपुर')
+  );
+}
+
+
+/* =========================
+   FIND HEADER ROWS
+========================= */
+
+function findHeaderRows(rows){
+
+  let bestDateRow=-1;
+  let bestDateCount=0;
+
+  /*
+    पहले 15 rows में Date वाली row खोजें
+  */
+
+  const limit=
+    Math.min(rows.length,15);
+
+
+  for(let r=0;r<limit;r++){
+
+    let count=0;
+
+    let context=null;
+
+    /*
+      उसी से पहले Month खोजें
+    */
+
+    for(let p=0;p<r;p++){
+
+      for(
+        let c=0;
+        c<(rows[p]||[]).length;
+        c++
+      ){
+
+        const m=
+          getMonthYear(
+            rows[p][c]
+          );
+
+        if(m){
+          context=m;
+        }
+
+      }
+
+    }
+
+
+    for(
+      let c=0;
+      c<(rows[r]||[]).length;
+      c++
+    ){
+
+      if(
+        getDate(
+          rows[r][c],
+          context
+        )
+      ){
+
+        count++;
+
+      }
+
+    }
+
+
+    if(count>bestDateCount){
+
+      bestDateCount=count;
+      bestDateRow=r;
+
+    }
+
+  }
+
+
+  /*
+    Date row के ठीक बाद Activity row
+    खोजें।
+  */
+
+  let activityRow=-1;
+
+  if(bestDateRow>=0){
+
+    let bestActivityCount=0;
+
+    for(
+      let r=bestDateRow+1;
+      r<=bestDateRow+3 &&
+      r<rows.length;
+      r++
+    ){
+
+      let count=0;
+
+      for(
+        let c=0;
+        c<(rows[r]||[]).length;
+        c++
+      ){
+
+        if(
+          isActivity(rows[r][c])
+        ){
+
+          count++;
+
+        }
+
+      }
+
+      if(count>bestActivityCount){
+
+        bestActivityCount=count;
+        activityRow=r;
+
+      }
+
+    }
+
+  }
+
+
+  return {
+    dateRow:bestDateRow,
+    activityRow:activityRow
+  };
+}
+
+
+/* =========================
+   FIND BADGE
 ========================= */
 
 function findBadge(rows,id){
 
   const target=norm(id);
 
-  /* पहले Column A में खोजें */
-  for(let r=0;r<rows.length;r++){
+
+  /*
+    पहले Column A
+  */
+
+  for(
+    let r=0;
+    r<rows.length;
+    r++
+  ){
 
     if(
       norm(rows[r]?.[0])===target
@@ -323,8 +516,16 @@ function findBadge(rows,id){
 
   }
 
-  /* जरूरत पड़े तो पूरे sheet में खोजें */
-  for(let r=0;r<rows.length;r++){
+
+  /*
+    जरूरत पड़ने पर पूरा sheet
+  */
+
+  for(
+    let r=0;
+    r<rows.length;
+    r++
+  ){
 
     for(
       let c=0;
@@ -346,57 +547,70 @@ function findBadge(rows,id){
 
   }
 
+
   return null;
 }
 
 
 /* =========================
-   MAKE ATTENDANCE
+   MAKE RECORD
 ========================= */
 
 function makeRecord(rows,info){
 
-  const badgeRow=info.row;
+  const badgeRow=
+    info.row;
 
   const personRow=
     rows[badgeRow]||[];
 
-  const monthRow=
-    rows[0]||[];
+
+  const headers=
+    findHeaderRows(rows);
+
+
+  const dateRowIndex=
+    headers.dateRow;
+
+  const activityRowIndex=
+    headers.activityRow;
+
+
+  if(
+    dateRowIndex<0 ||
+    activityRowIndex<0
+  ){
+
+    return {
+      badge:clean(personRow[0])||BADGE_ID,
+      name:clean(personRow[1]),
+      parent:clean(personRow[2]),
+      out:[]
+    };
+
+  }
+
 
   const dateRow=
-    rows[1]||[];
+    rows[dateRowIndex]||[];
 
   const activityRow=
-    rows[2]||[];
+    rows[activityRowIndex]||[];
 
 
-  const name=
-    clean(personRow[1]);
-
-  const parent=
-    clean(personRow[2]);
-
-
-  const result=[];
+  /*
+    Month row date row से पहले कहीं भी हो सकती है।
+    हर column के लिए latest month context रखें।
+  */
 
   let monthContext=null;
 
   let currentDate=null;
 
-
-  /*
-    Sheet structure:
-
-    Row 1 = Month
-    Row 2 = Date
-    Row 3 = Activity
-    Row 4+ = Sewadar
-  */
+  const out=[];
 
 
   const max=Math.max(
-    monthRow.length,
     dateRow.length,
     activityRow.length,
     personRow.length
@@ -409,62 +623,87 @@ function makeRecord(rows,info){
     c++
   ){
 
-    /* Month */
-    const m=
-      monthYear(
-        monthRow[c]
-      );
+    /*
+      Date से पहले के rows में
+      उसी column का Month खोजें।
+    */
 
-    if(m){
-      monthContext=m;
+    for(
+      let r=0;
+      r<dateRowIndex;
+      r++
+    ){
+
+      const m=
+        getMonthYear(
+          rows[r]?.[c]
+        );
+
+      if(m){
+
+        monthContext=m;
+
+      }
+
     }
 
 
-    /* Date */
+    /*
+      Date
+    */
+
     const d=
-      parseDate(
+      getDate(
         dateRow[c],
         monthContext
       );
 
+
     if(d){
+
       currentDate=d;
+
     }
 
 
     /*
-      A = Badge
-      B = Name
-      C = F/H
-      D = blank
-      E onward = Attendance
+      A-D = Badge/Name/FH/blank
+      E से Attendance
     */
 
     if(c<4){
+
       continue;
+
     }
 
 
     if(!currentDate){
+
       continue;
-    }
 
-
-    const raw=
-      clean(personRow[c]);
-
-
-    if(raw===''){
-      continue;
     }
 
 
     /*
-      Attendance can be:
-      1
-      2
-      3
-      etc.
+      Attendance value
+    */
+
+    const raw=
+      clean(
+        personRow[c]
+      );
+
+
+    if(!raw){
+
+      continue;
+
+    }
+
+
+    /*
+      केवल numeric attendance
     */
 
     const count=
@@ -477,79 +716,41 @@ function makeRecord(rows,info){
       !Number.isFinite(count) ||
       count<=0
     ){
+
       continue;
+
     }
 
 
     /*
-      IMPORTANT:
-      Activity उसी column से आएगी
+      उसी column की Activity
     */
 
-    const rawActivity=
-      activityRow[c] ?? '';
-
-
-    let activity=
-      activityName(
-        rawActivity
+    let act=
+      activity(
+        activityRow[c]
       );
 
 
     /*
-      अगर Activity खाली है,
-      attendance फिर भी नहीं छोड़ेंगे
+      Activity खाली हो तो attendance
+      फिर भी नहीं छोड़ेंगे।
     */
 
-    if(!activity){
+    if(!act){
 
-      activity='अन्य';
+      act='अन्य';
 
     }
 
 
-    /*
-      अगर special activity में
-      LIPAI है और ऊपर DAY/NIGHT है
-      तो दोनों जोड़ें
-    */
+    out.push({
 
-    const rawSpecial=
-      rows[3]?.[c] ?? '';
+      date:formatDate(currentDate),
 
-    const special=
-      activityName(rawSpecial);
+      sort:sortDate(currentDate),
 
-
-    if(
-      special &&
-      special!=='दिन' &&
-      special!=='रात' &&
-      special!=='ब्यास' &&
-      special!==activity
-    ){
-
-      if(
-        (activity==='दिन' ||
-         activity==='रात') &&
-        special==='लिपाई'
-      ){
-
-        activity=
-          activity+' '+special;
-
-      }
-
-    }
-
-
-    result.push({
-
-      date:fmtDate(currentDate),
-
-      sort:dateSort(currentDate),
-
-      activity:activity,
+      activity:act,
 
       count:count,
 
@@ -561,10 +762,10 @@ function makeRecord(rows,info){
 
 
   /*
-    Date के हिसाब से क्रम
+    तारीख़ के अनुसार क्रम
   */
 
-  result.sort((a,b)=>{
+  out.sort((a,b)=>{
 
     if(a.sort!==b.sort){
 
@@ -579,13 +780,17 @@ function makeRecord(rows,info){
 
   return {
 
-    badge:clean(personRow[0]) || BADGE_ID,
+    badge:
+      clean(personRow[0]) ||
+      BADGE_ID,
 
-    name:name,
+    name:
+      clean(personRow[1]),
 
-    parent:parent,
+    parent:
+      clean(personRow[2]),
 
-    out:result
+    out:out
 
   };
 
@@ -629,29 +834,13 @@ async function load(){
     await response.text();
 
 
-  const rows=
-    parseGViz(text);
-
-
-  if(
-    !rows ||
-    !rows.length
-  ){
-
-    throw new Error(
-      'Sheet data empty'
-    );
-
-  }
-
-
-  return rows;
+  return parseGViz(text);
 
 }
 
 
 /* =========================
-   RESULT
+   DISPLAY
 ========================= */
 
 function resultPage(rec){
@@ -747,9 +936,7 @@ async function loadBranding(){
       );
 
 
-    if(!response.ok){
-      return;
-    }
+    if(!response.ok)return;
 
 
     const html=
@@ -769,9 +956,7 @@ async function loadBranding(){
           /data:image\/png;base64,[A-Za-z0-9+/=]+/i
         );
 
-      if(!fallback){
-        return;
-      }
+      if(!fallback)return;
 
       match=[
         null,
@@ -794,11 +979,11 @@ async function loadBranding(){
 
   }
 
-  catch(error){
+  catch(e){
 
     console.log(
       'Branding load failed',
-      error
+      e
     );
 
   }
@@ -810,7 +995,7 @@ async function loadBranding(){
    BACK
 ========================= */
 
-$('backBtn').onclick=function(){
+$('backBtn').onclick=()=>{
 
   history.back();
 
@@ -878,9 +1063,7 @@ async function boot(){
 
   catch(error){
 
-    console.error(
-      error
-    );
+    console.error(error);
 
 
     $('status').textContent=
