@@ -355,135 +355,17 @@ function isActivity(v){
    FIND HEADER ROWS
 ========================= */
 
+
 function findHeaderRows(rows){
 
-  let bestDateRow=-1;
-  let bestDateCount=0;
-
-  /*
-    पहले 15 rows में Date वाली row खोजें
-  */
-
-  const limit=
-    Math.min(rows.length,15);
-
-
-  for(let r=0;r<limit;r++){
-
-    let count=0;
-
-    let context=null;
-
-    /*
-      उसी से पहले Month खोजें
-    */
-
-    for(let p=0;p<r;p++){
-
-      for(
-        let c=0;
-        c<(rows[p]||[]).length;
-        c++
-      ){
-
-        const m=
-          getMonthYear(
-            rows[p][c]
-          );
-
-        if(m){
-          context=m;
-        }
-
-      }
-
-    }
-
-
-    for(
-      let c=0;
-      c<(rows[r]||[]).length;
-      c++
-    ){
-
-      if(
-        getDate(
-          rows[r][c],
-          context
-        )
-      ){
-
-        count++;
-
-      }
-
-    }
-
-
-    if(count>bestDateCount){
-
-      bestDateCount=count;
-      bestDateRow=r;
-
-    }
-
-  }
-
-
-  /*
-    Date row के ठीक बाद Activity row
-    खोजें।
-  */
-
-  let activityRow=-1;
-
-  if(bestDateRow>=0){
-
-    let bestActivityCount=0;
-
-    for(
-      let r=bestDateRow+1;
-      r<=bestDateRow+3 &&
-      r<rows.length;
-      r++
-    ){
-
-      let count=0;
-
-      for(
-        let c=0;
-        c<(rows[r]||[]).length;
-        c++
-      ){
-
-        if(
-          isActivity(rows[r][c])
-        ){
-
-          count++;
-
-        }
-
-      }
-
-      if(count>bestActivityCount){
-
-        bestActivityCount=count;
-        activityRow=r;
-
-      }
-
-    }
-
-  }
-
-
   return {
-    dateRow:bestDateRow,
-    activityRow:activityRow
+    dateRow:1,
+    activityRow:2,
+    specialRow:3
   };
-}
 
+}
+  
 
 /* =========================
    FIND BADGE
@@ -565,6 +447,9 @@ function makeRecord(rows,info){
 
   const dateRowIndex=headers.dateRow;
   const activityRowIndex=headers.activityRow;
+  
+  const specialRowIndex=
+  headers.specialRow;
 
   const record={
     badge:clean(personRow[0])||BADGE_ID,
@@ -579,6 +464,9 @@ function makeRecord(rows,info){
 
   const dateRow=rows[dateRowIndex]||[];
   const activityRow=rows[activityRowIndex]||[];
+
+  const specialRow=
+  rows[specialRowIndex]||[];
 
   /*
     Sheet में Month/Year ऊपर की row में हो सकता है।
@@ -690,7 +578,22 @@ if(count<=0){
       activityRow[c]
     );
 
+const special=
+  activity(
+    specialRow[c]
+  );
 
+
+if(special){
+
+  if(act){
+    act=act+' '+special;
+  }else{
+    act=special;
+  }
+
+}
+    
     if(!act){
       act='अन्य';
     }
