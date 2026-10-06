@@ -279,12 +279,84 @@ function buildMonthMap(rows,dateRow,cols){
   return map;
 }
 
-function makeRecords(rows,badgeRow){
-  const dateRow=findDateRow(rows,badgeRow);
+function make(rows,badgeRow,badgeId){
 
-  if(dateRow<0){
-    throw Error('तारीख़ वाली row नहीं मिली');
+  const row=rows[badgeRow]||[];
+
+  const badge=clean(row[0]);
+  const name=clean(row[1]);
+  const parent=clean(row[2]);
+
+  const dateRow=findDateRow(rows,badgeRow);
+  const activityRow=dateRow+1;
+
+  const items=[];
+
+  let currentDate='';
+
+  for(let c=3;c<row.length;c++){
+
+    /* तारीख */
+    if(isDate(rows[dateRow]?.[c])){
+      currentDate=fmtDate(rows[dateRow][c]);
+    }
+
+    if(!currentDate) continue;
+
+    /* Activity */
+    let activity=clean(rows[activityRow]?.[c]);
+
+    /* Attendance value */
+    const raw=clean(row[c]);
+
+    if(!raw) continue;
+
+    const n=number(raw);
+
+    if(!n) continue;
+
+    /* Activity का Hindi नाम */
+    let a=activity.toUpperCase().trim();
+
+    if(a==='DAY'){
+      activity='दिन';
+    }
+    else if(a==='NIGHT'){
+      activity='रात';
+    }
+    else if(a==='BEAS' || a==='BIAS'){
+      activity='ब्यास';
+    }
+    else if(a==='LIPAI' || a==='LIPAI'){
+      activity='लिपाई';
+    }
+    else if(a==='SAHARANPUR'){
+      activity='सहारनपुर';
+    }
+    else if(a==='BANGALORE' || a==='BENGALURU'){
+      activity='बैंगलोर';
+    }
+    else if(a==='PORT BLAIR'){
+      activity='पोर्ट ब्लेयर';
+    }
+    else if(a){
+      activity=activity;
+    }
+
+    items.push({
+      date:currentDate,
+      activity:activity,
+      count:n
+    });
   }
+
+  return {
+    badge:badge,
+    name:name,
+    parent:parent,
+    items:items
+  };
+}
 
   const activityRow=dateRow+1;
   const badgeRowData=rows[badgeRow]||[];
