@@ -443,89 +443,108 @@ function makeRecord(rows,info){
   const badgeRow=info.row;
   const personRow=rows[badgeRow]||[];
 
-  const headers=findHeaderRows(rows);
+  /*
+    FIXED SHEET STRUCTURE
 
-  const dateRowIndex=headers.dateRow;
-  const activityRowIndex=headers.activityRow;
-  
-  const specialRowIndex=
-  headers.specialRow;
+    Row 1 = Month/Year
+    Row 2 = Date
+    Row 3 = Activity
+    Row 4 = Special Activity
+    Row 5+ = Sewadar
+  */
+
+  const dateRow=rows[1]||[];
+  const activityRow=rows[2]||[];
+  const specialRow=rows[3]||[];
+
 
   const record={
+
     badge:clean(personRow[0])||BADGE_ID,
+
     name:clean(personRow[1]),
+
     parent:clean(personRow[2]),
+
     out:[]
   };
 
-  if(dateRowIndex<0 || activityRowIndex<0){
-    return record;
-  }
-
-  const dateRow=rows[dateRowIndex]||[];
-  const activityRow=rows[activityRowIndex]||[];
-
-  const specialRow=
-  rows[specialRowIndex]||[];
 
   /*
-    Sheet में Month/Year ऊपर की row में हो सकता है।
-    इसलिए हर column के लिए उसका Month/Year सुरक्षित रखें।
+    Row 1 से Month/Year
   */
 
-  const columnMonth={};
-  let lastMonth=null;
+  let monthContext=null;
 
-  for(let r=0;r<dateRowIndex;r++){
+  const monthRow=rows[0]||[];
 
-    const row=rows[r]||[];
 
-    for(let c=0;c<row.length;c++){
+  for(let c=0;c<monthRow.length;c++){
 
-      const m=getMonthYear(row[c]);
+    const m=
+      getMonthYear(
+        monthRow[c]
+      );
 
-      if(m){
-        columnMonth[c]=m;
-        lastMonth=m;
-      }
+    if(m){
+      monthContext=m;
     }
   }
 
 
+  /*
+    Attendance columns
+    E से शुरू
+  */
+
   let currentDate=null;
+
 
   const max=Math.max(
     dateRow.length,
     activityRow.length,
+    specialRow.length,
     personRow.length
   );
 
 
   for(let c=4;c<max;c++){
 
-    const monthContext=
-      columnMonth[c]||lastMonth;
+
+    /*
+      Month/Year उसी column में हो तो
+      उसे update करें
+    */
+
+    const columnMonth=
+      getMonthYear(
+        monthRow[c]
+      );
+
+    if(columnMonth){
+      monthContext=columnMonth;
+    }
 
 
     /*
-      इस column की तारीख
+      DATE — Row 2
     */
 
-    const d=getDate(
-      dateRow[c],
-      monthContext
-    );
+    const d=
+      getDate(
+        dateRow[c],
+        monthContext
+      );
 
-
-    /*
-      तारीख मिली तो आगे की columns के लिए
-      वही तारीख जारी रहेगी।
-    */
 
     if(d){
       currentDate=d;
     }
 
+
+    /*
+      अभी तक Date नहीं मिली
+    */
 
     if(!currentDate){
       continue;
@@ -533,67 +552,103 @@ function makeRecord(rows,info){
 
 
     /*
-      इस Badge की attendance
+      इस Badge की Attendance
     */
 
-const raw=clean(personRow[c]);
+    const raw=
+      clean(
+        personRow[c]
+      );
 
-if(!raw){
-  continue;
-}
 
-let count=0;
-
-const numeric=
-  Number(
-    raw.replace(/,/g,'')
-  );
-
-if(
-  Number.isFinite(numeric) &&
-  numeric>0
-){
-  count=numeric;
-}
-else if(
-  raw==='P' ||
-  raw==='p' ||
-  raw==='✓' ||
-  raw==='✔' ||
-  raw.toUpperCase()==='YES'
-){
-  count=1;
-}
-
-if(count<=0){
-  continue;
-}
+    if(!raw){
+      continue;
+    }
 
 
     /*
-      उसी column की activity
+      Attendance value
     */
 
-    let act=activity(
-      activityRow[c]
-    );
-
-const special=
-  activity(
-    specialRow[c]
-  );
+    let count=0;
 
 
-if(special){
+    const n=
+      Number(
+        raw.replace(/,/g,'')
+      );
 
-  if(act){
-    act=act+' '+special;
-  }else{
-    act=special;
-  }
 
-}
-    
+    if(
+      Number.isFinite(n) &&
+      n>0
+    ){
+
+      count=n;
+
+    }
+    else if(
+      raw.toUpperCase()==='P' ||
+      raw.toUpperCase()==='PRESENT' ||
+      raw.toUpperCase()==='YES' ||
+      raw==='✓' ||
+      raw==='✔'
+    ){
+
+      count=1;
+
+    }
+
+
+    if(count<=0){
+      continue;
+    }
+
+
+    /*
+      ACTIVITY — Row 3
+    */
+
+    let act=
+      activity(
+        activityRow[c]
+      );
+
+
+    /*
+      SPECIAL ACTIVITY — Row 4
+    */
+
+    const special=
+      activity(
+        specialRow[c]
+      );
+
+
+    /*
+      DAY + LIPAI
+      DAY + SAHARANPUR
+      आदि
+    */
+
+    if(special){
+
+      if(act){
+
+        act=
+          act+
+          ' '+
+          special;
+
+      }else{
+
+        act=special;
+
+      }
+
+    }
+
+
     if(!act){
       act='अन्य';
     }
@@ -601,15 +656,20 @@ if(special){
 
     record.out.push({
 
-      date:formatDate(currentDate),
+      date:
+        formatDate(currentDate),
 
-      sort:sortDate(currentDate),
+      sort:
+        sortDate(currentDate),
 
-      activity:act,
+      activity:
+        act,
 
-      count:count,
+      count:
+        count,
 
-      column:c
+      column:
+        c
 
     });
 
@@ -617,13 +677,15 @@ if(special){
 
 
   /*
-    तारीख के क्रम में
+    Date-wise sorting
   */
 
   record.out.sort((a,b)=>{
 
     if(a.sort!==b.sort){
+
       return a.sort-b.sort;
+
     }
 
     return a.column-b.column;
