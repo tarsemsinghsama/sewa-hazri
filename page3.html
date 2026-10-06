@@ -539,11 +539,90 @@ function make(rows,info){
   };
 
 }
-async function load(){let u='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(SHEET_NAME)+'&t='+Date.now();let r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('Google Sheet खुल नहीं रही');return parseGViz(await r.text())}
-function render(a){$('dateList').innerHTML=a.length?a.map(x=>`<div class="date-row"><div class="date-info"><div class="date">${esc(x.date)}</div><div class="activity">${esc(x.activity)}</div></div><div class="count">${esc(x.count)}</div></div>`).join(''):'<div class="empty">इस Badge ID की तारीख़वार हाज़री नहीं मिली।</div>'}
-async function logo(){try{let r=await fetch('./index.html?logo='+Date.now(),{cache:'no-store'});if(!r.ok)return;let h=await r.text(),m=h.match(/data:image\/png;base64,([A-Za-z0-9+/=]+)/);if(m){let s='data:image/png;base64,'+m[1];$('topLogo').src=s;$('watermark').style.backgroundImage='url("'+s+'")'}}catch(e){console.warn(e)}}
-$('backBtn').onclick=()=>{location.href=BADGE_ID?'./index.html?badge='+encodeURIComponent(BADGE_ID):'./index.html'};
-async function boot(){await logo();if(!BADGE_ID){$('status').textContent='Badge ID नहीं मिला।';$('status').className='status err';return}try{let rows=await load(),info=findBadge(rows,BADGE_ID);if(!info){$('status').textContent='यह Badge ID MaleFemaleSKP sheet में नहीं मिली।';$('status').className='status err';return}let d=make(rows,info);$('personName').textContent=d.name;$('parentName').textContent=d.parent;render(d.out);$('status').textContent=d.out.length+' तारीख़/गतिविधि की जानकारी मिली।'}catch(e){console.error(e);$('status').textContent='MaleFemaleSKP से हाज़री data load नहीं हो सका।';$('status').className='status err'}}
+async function load(){
+
+  const url =
+    'https://docs.google.com/spreadsheets/d/' +
+    '1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8' +
+    '/gviz/tq?tqx=out:json&sheet=' +
+    encodeURIComponent('MaleFemaleSKP') +
+    '&t=' + Date.now();
+
+  const response = await fetch(url,{
+    cache:'no-store'
+  });
+
+  if(!response.ok){
+    throw new Error('Google Sheet load failed');
+  }
+
+  const text = await response.text();
+
+  const rows = parseGViz(text);
+
+  if(!rows || !rows.length){
+    throw new Error('Sheet data empty');
+  }
+
+  return rows;
+}
+
+
+async function boot(){
+
+  const badge =
+    new URLSearchParams(location.search).get('badge');
+
+  if(!badge){
+
+    document.getElementById('app').innerHTML =
+      '<div style="padding:30px;text-align:center;color:#790000">' +
+      'Badge ID नहीं मिला' +
+      '</div>';
+
+    return;
+  }
+
+
+  try{
+
+    const rows = await load();
+
+    const info = findBadge(rows,badge);
+
+    if(!info){
+
+      document.getElementById('app').innerHTML =
+        '<div style="padding:30px;text-align:center;color:#790000">' +
+        'इस Badge ID की जानकारी नहीं मिली।' +
+        '</div>';
+
+      return;
+    }
+
+
+    const rec = make(rows,info);
+
+    rec.badge = badge;
+
+    resultPage(rec);
+
+  }
+
+  catch(error){
+
+    console.error(error);
+
+    document.getElementById('app').innerHTML =
+      '<div style="padding:30px;text-align:center;color:#790000">' +
+      'हाज़री की जानकारी लोड नहीं हो सकी।' +
+      '</div>';
+
+  }
+
+}
+
+
 boot();
 </script>
 </body>
