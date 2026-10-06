@@ -319,89 +319,200 @@ function make(rows,info){
     if(
       !Number.isFinite(n) ||
       n<1
+function isMainActivity(v){
+
+  const s=clean(v).toUpperCase();
+
+  return (
+    s==='DAY' ||
+    s==='D' ||
+    s==='NIGHT' ||
+    s==='N' ||
+    s==='BEAS' ||
+    s==='ब्यास' ||
+    s==='दिन' ||
+    s==='रात'
+  );
+}
+
+
+function findDateRow(rows,br){
+
+  let best=-1;
+  let bestScore=-1;
+
+  for(let r=0;r<br;r++){
+
+    let dateCount=0;
+    let activityCount=0;
+
+    for(let c=0;c<rows[r].length;c++){
+
+      if(isDate(rows[r][c])){
+        dateCount++;
+      }
+
+      if(isMainActivity(rows[r+1]?.[c])){
+        activityCount++;
+      }
+    }
+
+    const score=(dateCount*10)+activityCount;
+
+    if(dateCount>0 && score>bestScore){
+      bestScore=score;
+      best=r;
+    }
+  }
+
+  return best;
+}
+
+
+function findMonthRow(rows,dr){
+
+  let best=-1;
+  let countBest=0;
+
+  for(let r=0;r<dr;r++){
+
+    let n=rows[r].filter(isMonthYear).length;
+
+    if(n>countBest){
+      countBest=n;
+      best=r;
+    }
+  }
+
+  return best;
+}
+
+
+function make(rows,info){
+
+  const br=info.r;
+  const bc=info.c;
+
+  const brow=rows[br]||[];
+
+  const dr=findDateRow(rows,br);
+
+  if(dr<0){
+
+    return{
+      name:clean(brow[1]),
+      parent:clean(brow[2]),
+      out:[]
+    };
+  }
+
+  const activityRow=dr+1;
+  const specialRow=dr+2;
+  const mr=findMonthRow(rows,dr);
+
+  let monthContext=null;
+  let currentDate='';
+
+  const name=clean(brow[1]);
+  const parent=clean(brow[2]);
+
+  const out=[];
+
+  const max=Math.max(
+    (rows[dr]||[]).length,
+    (rows[activityRow]||[]).length,
+    (rows[specialRow]||[]).length,
+    brow.length,
+    (rows[mr]||[]).length
+  );
+
+
+  for(let c=0;c<max;c++){
+
+    if(
+      mr>=0 &&
+      isMonthYear(rows[mr]?.[c])
+    ){
+      monthContext=monthYear(rows[mr][c]);
+    }
+
+
+    const dateCell=clean(
+      rows[dr]?.[c]??''
+    );
+
+    if(isDate(dateCell)){
+
+      currentDate=fmtDate(
+        dateCell,
+        monthContext
+      );
+    }
+
+
+    if(!currentDate){
+      continue;
+    }
+
+
+    const raw=clean(
+      brow[c]??''
+    );
+
+    if(raw===''){
+      continue;
+    }
+
+
+    const n=Number(
+      raw.replace(/,/g,'')
+    );
+
+    if(
+      !Number.isFinite(n) ||
+      n<1
     ){
       continue;
     }
 
 
-    /*
-      Row 3 = Main Activity
-    */
-
     const main=act(
-      rows[activityRow]?.[c] ?? ''
+      rows[activityRow]?.[c]??''
     );
 
-
-    /*
-      Row 4 = Special Activity
-    */
-
     const special=act(
-      rows[specialRow]?.[c] ?? ''
+      rows[specialRow]?.[c]??''
     );
 
 
     let finalActivity='';
 
 
-    /*
-      DAY + LIPAI
-      = दिन लिपाई
-    */
-
-    if(
-      main &&
-      main!=='हाज़री' &&
-      special &&
-      special!=='हाज़री'
-    ){
+    if(main && special){
 
       finalActivity=
         main+' '+special;
+
     }
 
-
-    /*
-      केवल Main Activity
-    */
-
-    else if(
-      main &&
-      main!=='हाज़री'
-    ){
+    else if(main){
 
       finalActivity=main;
+
     }
 
-
-    /*
-      केवल Special Activity
-    */
-
-    else if(
-      special &&
-      special!=='हाज़री'
-    ){
+    else if(special){
 
       finalActivity=special;
+
     }
-
-
-    /*
-      अगर Activity नहीं मिली
-      तो column छोड़ दें
-    */
 
     else{
 
       continue;
+
     }
 
-
-    /*
-      Final record
-    */
 
     out.push({
 
@@ -412,6 +523,7 @@ function make(rows,info){
       count:n
 
     });
+
   }
 
 
@@ -424,6 +536,7 @@ function make(rows,info){
     out:out
 
   };
+
 }
 async function load(){let u='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(SHEET_NAME)+'&t='+Date.now();let r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('Google Sheet खुल नहीं रही');return parseGViz(await r.text())}
 function render(a){$('dateList').innerHTML=a.length?a.map(x=>`<div class="date-row"><div class="date-info"><div class="date">${esc(x.date)}</div><div class="activity">${esc(x.activity)}</div></div><div class="count">${esc(x.count)}</div></div>`).join(''):'<div class="empty">इस Badge ID की तारीख़वार हाज़री नहीं मिली।</div>'}
