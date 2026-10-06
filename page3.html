@@ -622,11 +622,504 @@ async function boot(){
     }
 
 
-    const rec = make(rows,info);
+function findBadge(rows,id){
 
-    rec.badge = badge;
+  const target=norm(id);
+
+  for(let r=0;r<rows.length;r++){
+
+    for(let c=0;c<rows[r].length;c++){
+
+      if(norm(rows[r][c])===target){
+
+        return {
+          r:r,
+          c:c
+        };
+
+      }
+
+    }
+
+  }
+
+  return null;
+}
+
+
+function isMainActivity(v){
+
+  const s=clean(v).toUpperCase();
+
+  return (
+    s==='DAY' ||
+    s==='D' ||
+    s==='NIGHT' ||
+    s==='N' ||
+    s==='BEAS' ||
+    s==='ब्यास' ||
+    s==='दिन' ||
+    s==='रात'
+  );
+
+}
+
+
+function findDateRow(rows,br){
+
+  let best=-1;
+  let bestScore=-1;
+
+  for(let r=0;r<br;r++){
+
+    let dateCount=0;
+    let activityCount=0;
+
+    for(let c=0;c<(rows[r]||[]).length;c++){
+
+      if(isDate(rows[r][c])){
+        dateCount++;
+      }
+
+      if(isMainActivity(rows[r+1]?.[c])){
+        activityCount++;
+      }
+
+    }
+
+    const score=(dateCount*10)+activityCount;
+
+    if(dateCount>0 && score>bestScore){
+
+      bestScore=score;
+      best=r;
+
+    }
+
+  }
+
+  return best;
+}
+
+
+function findMonthRow(rows,dr){
+
+  let best=-1;
+  let bestCount=0;
+
+  for(let r=0;r<dr;r++){
+
+    let count=0;
+
+    for(let c=0;c<(rows[r]||[]).length;c++){
+
+      if(isMonthYear(rows[r][c])){
+        count++;
+      }
+
+    }
+
+    if(count>bestCount){
+
+      bestCount=count;
+      best=r;
+
+    }
+
+  }
+
+  return best;
+}
+
+
+function make(rows,info){
+
+  const br=info.r;
+  const brow=rows[br]||[];
+
+  const dr=findDateRow(rows,br);
+
+  if(dr<0){
+
+    return {
+      name:clean(brow[1]),
+      parent:clean(brow[2]),
+      out:[]
+    };
+
+  }
+
+
+  /*
+    Sheet structure:
+
+    Row 2 = Month / Year
+    Row 3 = Date
+    Row 4 = Activity
+    Row 5 = Special Activity
+    Row 6 onward = Sewadar data
+
+    लेकिन code Date Row को automatically खोजता है,
+    इसलिए fixed row number पर निर्भर नहीं है.
+  */
+
+
+  const activityRow=dr+1;
+  const specialRow=dr+2;
+
+  const mr=findMonthRow(rows,dr);
+
+  let monthContext=null;
+  let currentDate='';
+
+  const name=clean(brow[1]);
+  const parent=clean(brow[2]);
+
+  const out=[];
+
+
+  const max=Math.max(
+
+    (rows[dr]||[]).length,
+
+    (rows[activityRow]||[]).length,
+
+    (rows[specialRow]||[]).length,
+
+    brow.length,
+
+    mr>=0 ? (rows[mr]||[]).length : 0
+
+  );
+
+
+  for(let c=0;c<max;c++){
+
+
+    /* Month / Year */
+
+    if(
+      mr>=0 &&
+      isMonthYear(rows[mr]?.[c])
+    ){
+
+      monthContext=monthYear(
+        rows[mr][c]
+      );
+
+    }
+
+
+    /* Date */
+
+    const dateCell=clean(
+      rows[dr]?.[c] ?? ''
+    );
+
+
+    if(isDate(dateCell)){
+
+      currentDate=fmtDate(
+        dateCell,
+        monthContext
+      );
+
+    }
+
+
+    if(!currentDate){
+      continue;
+    }
+
+
+    /* Badge attendance */
+
+    const raw=clean(
+      brow[c] ?? ''
+    );
+
+
+    /* Empty cell */
+
+    if(raw===''){
+      continue;
+    }
+
+
+    const n=Number(
+      raw.replace(/,/g,'')
+    );
+
+
+    if(
+      !Number.isFinite(n) ||
+      n<1
+    ){
+
+      continue;
+
+    }
+
+
+    /* Main Activity */
+
+    const main=act(
+      rows[activityRow]?.[c] ?? ''
+    );
+
+
+    /* Special Activity */
+
+    const special=act(
+      rows[specialRow]?.[c] ?? ''
+    );
+
+
+    let finalActivity='';
+
+
+    /*
+      DAY + LIPAI
+      = दिन लिपाई
+    */
+
+    if(main && special){
+
+      finalActivity=
+        main+' '+special;
+
+    }
+
+    /*
+      केवल Main Activity
+    */
+
+    else if(main){
+
+      finalActivity=main;
+
+    }
+
+    /*
+      केवल Special Activity
+    */
+
+    else if(special){
+
+      finalActivity=special;
+
+    }
+
+    /*
+      Activity नहीं मिली
+    */
+
+    else{
+
+      continue;
+
+    }
+
+
+    out.push({
+
+      date:currentDate,
+
+      activity:finalActivity,
+
+      count:n
+
+    });
+
+  }
+
+
+  return {
+
+    name:name,
+
+    parent:parent,
+
+    out:out
+
+  };
+
+}
+
+
+async function load(){
+
+  const url=
+    'https://docs.google.com/spreadsheets/d/' +
+    SHEET_ID +
+    '/gviz/tq?tqx=out:json&sheet=' +
+    encodeURIComponent(SHEET_NAME) +
+    '&t=' +
+    Date.now();
+
+
+  const response=await fetch(
+    url,
+    {
+      cache:'no-store'
+    }
+  );
+
+
+  if(!response.ok){
+
+    throw new Error(
+      'Google Sheet load failed'
+    );
+
+  }
+
+
+  const text=await response.text();
+
+
+  const rows=parseGViz(text);
+
+
+  if(!rows || !rows.length){
+
+    throw new Error(
+      'Sheet data empty'
+    );
+
+  }
+
+
+  return rows;
+
+}
+
+
+function resultPage(rec){
+
+  $('badge').textContent=
+    rec.badge || BADGE_ID || '—';
+
+
+  $('personName').textContent=
+    rec.name || '';
+
+
+  $('parentName').textContent=
+    rec.parent || '';
+
+
+  const list=$('dateList');
+
+
+  if(!rec.out || !rec.out.length){
+
+    $('status').textContent=
+      'इस Badge ID की तारीख़वार हाज़री नहीं मिली।';
+
+    $('status').className=
+      'status err';
+
+    list.innerHTML='';
+
+    return;
+
+  }
+
+
+  $('status').textContent=
+    rec.out.length +
+    ' तारीख/गतिविधि की जानकारी मिली।';
+
+  $('status').className=
+    'status';
+
+
+  list.innerHTML=
+    rec.out.map(item=>`
+
+      <div class="date-row">
+
+        <div class="date-info">
+
+          <div class="date">
+            ${esc(item.date)}
+          </div>
+
+          <div class="activity">
+            ${esc(item.activity)}
+          </div>
+
+        </div>
+
+        <div class="count">
+          ${esc(item.count)}
+        </div>
+
+      </div>
+
+    `).join('');
+
+}
+
+
+async function boot(){
+
+  if(!BADGE_ID){
+
+    $('badge').textContent='—';
+
+    $('personName').textContent='';
+    $('parentName').textContent='';
+
+    $('status').textContent=
+      'Badge ID नहीं मिला।';
+
+    $('status').className=
+      'status err';
+
+    return;
+
+  }
+
+
+  try{
+
+    const rows=await load();
+
+
+    const info=
+      findBadge(
+        rows,
+        BADGE_ID
+      );
+
+
+    if(!info){
+
+      $('status').textContent=
+        'इस Badge ID की जानकारी नहीं मिली।';
+
+      $('status').className=
+        'status err';
+
+      return;
+
+    }
+
+
+    const rec=
+      make(
+        rows,
+        info
+      );
+
+
+    rec.badge=BADGE_ID;
+
 
     resultPage(rec);
+
 
   }
 
@@ -634,17 +1127,29 @@ async function boot(){
 
     console.error(error);
 
-    document.getElementById('app').innerHTML =
-      '<div style="padding:30px;text-align:center;color:#790000">' +
-      'हाज़री की जानकारी लोड नहीं हो सकी।' +
-      '</div>';
+
+    $('status').textContent=
+      'हाज़री की जानकारी लोड नहीं हो सकी।';
+
+    $('status').className=
+      'status err';
 
   }
 
 }
 
 
+$('backBtn').onclick=function(){
+
+  history.back();
+
+};
+
+
 boot();
+
+
+    
 </script>
 </body>
 </html>
