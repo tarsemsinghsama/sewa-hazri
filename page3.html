@@ -337,6 +337,9 @@ function makeRecords(rows,badgeRow){
     if(!dateText)continue;
 
     const act=activity(rows[activityRow]?.[c]??'');
+
+const fixedAct=activity(fixedActivityRow[c]??'');
+    
     const raw=badgeRowData[c]??'';
     const number=attendanceNumber(raw);
 
@@ -351,6 +354,10 @@ function makeRecords(rows,badgeRow){
       label+=' '+act;
     }
 
+if(fixedAct && fixedAct!==act){
+  label+=' '+fixedAct;
+}
+    
     result.push({
       date:dateText,
       activity:act,
