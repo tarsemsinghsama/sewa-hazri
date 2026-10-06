@@ -187,57 +187,7 @@ function makeRecord(rows,badgeRow,badgeId){
   };
 }
 
-  if(!badge)badge=badgeId;
 
-  let day=0;
-  let night=0;
-  let saturday=0;
-  let sunday=0;
-  let lipai=0;
-  let beas=0;
-
-  let currentDate='';
-
-  for(let c=0;c<row.length;c++){
-
-    if(isDate(rows[dateRow]?.[c])){
-      currentDate=fmtDate(rows[dateRow][c]);
-    }
-
-    if(!currentDate)continue;
-
-    const a=activity(rows[actRow]?.[c]);
-    const n=number(row[c]);
-
-    if(!n)continue;
-
-    if(a==='दिन')day+=n;
-    else if(a==='रात')night+=n;
-    else if(a==='लिपाई')lipai+=n;
-    else if(a==='ब्यास')beas+=n;
-
-    const p=currentDate.split('-');
-
-    if(p.length===3){
-      const d=new Date(Number(p[2]),Number(p[1])-1,Number(p[0])).getDay();
-
-      if(d===6)saturday+=n;
-      if(d===0)sunday+=n;
-    }
-  }
-
-  return {
-    badge,
-    name,
-    parent,
-    day,
-    night,
-    saturday,
-    sunday,
-    lipai,
-    beas
-  };
-}
 
 async function loadBadge(badgeId){
 
