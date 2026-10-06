@@ -56,10 +56,20 @@ function make(rows,info){
     const dateCell=rows[dr]?.[c]??'';
     if(isDate(dateCell)) current=fmtDate(dateCell,monthContext);
     if(!current)continue;
-    let av=clean(rows[ar]?.[c]??''),raw=clean(brow[c]??'');
-    if(!isDate(dateCell)&&!av&&!raw)continue;
-    let n=raw===''?0:(Number(raw.replace(/,/g,''))||raw);
-    out.push({date:current,activity:act(av),count:n});
+    let av=clean(rows[ar]?.[c]??'');
+let raw=clean(brow[c]??'');
+
+if(!isDate(dateCell) && !av && !raw) continue;
+
+let n=Number(raw.replace(/,/g,''));
+
+if(!Number.isFinite(n) || n<1) continue;
+
+out.push({
+  date:current,
+  activity:act(av),
+  count:n
+});
   }
   return{name,parent,out}
 }
