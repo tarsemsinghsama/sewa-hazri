@@ -161,29 +161,31 @@ function number(v){
 
 function makeRecord(rows,badgeRow,badgeId){
 
-  const dateRow=rows.findIndex((row,i)=>
-    i<badgeRow && row.some(isDate)
-  );
-
-  const actRow=dateRow+1;
   const row=rows[badgeRow]||[];
 
-  let badge='';
-  let name='';
-  let parent='';
+  const badge=clean(row[0]);
+  const name=clean(row[1]);
+  const parent=clean(row[2]);
 
-  const badgeNorm=norm(badgeId);
+  const day=number(row[3]);
+  const night=number(row[4]);
+  const saturday=number(row[5]);
+  const sunday=number(row[6]);
+  const lipai=number(row[7]);
+  const beas=number(row[8]);
 
-  for(let c=0;c<row.length;c++){
-    if(norm(row[c])===badgeNorm){
-      badge=clean(row[c]);
-
-      if(c>0)name=clean(row[c-1]);
-      if(c>1)parent=clean(row[c-2]);
-
-      break;
-    }
-  }
+  return{
+    badge:badge||clean(badgeId),
+    name:name,
+    parent:parent,
+    day:day,
+    night:night,
+    saturday:saturday,
+    sunday:sunday,
+    lipai:lipai,
+    beas:beas
+  };
+}
 
   if(!badge)badge=badgeId;
 
