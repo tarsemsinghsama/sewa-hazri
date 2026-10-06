@@ -82,7 +82,7 @@ function parseGViz(text){
 
   return (json.table?.rows||[]).map(row =>
     (row.c||[]).map(cell =>
-      cell ? (cell.f ?? cell.v ?? '') : ''
+      cell ? (cell.f || cell.v || '') : ''
     )
   );
 }
