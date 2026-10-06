@@ -648,24 +648,38 @@ function makeRecord(rows,info){
       इस Badge की attendance
     */
 
-    const raw=clean(personRow[c]);
+const raw=clean(personRow[c]);
 
-    if(!raw){
-      continue;
-    }
+if(!raw){
+  continue;
+}
 
+let count=0;
 
-    const count=Number(
-      raw.replace(/,/g,'')
-    );
+const numeric=
+  Number(
+    raw.replace(/,/g,'')
+  );
 
+if(
+  Number.isFinite(numeric) &&
+  numeric>0
+){
+  count=numeric;
+}
+else if(
+  raw==='P' ||
+  raw==='p' ||
+  raw==='✓' ||
+  raw==='✔' ||
+  raw.toUpperCase()==='YES'
+){
+  count=1;
+}
 
-    if(
-      !Number.isFinite(count) ||
-      count<=0
-    ){
-      continue;
-    }
+if(count<=0){
+  continue;
+}
 
 
     /*
