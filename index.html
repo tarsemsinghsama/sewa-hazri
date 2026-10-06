@@ -86,7 +86,7 @@ function val(c){
 }
 function parseGViz(t){
   let a=t.indexOf('{'),b=t.lastIndexOf('}');
-  if(a<0||b<0)throw Erro'Response नहीं मिला');
+  if(a<0||b<0)throw Error ('Response नहीं मिला');
   let j=JSON.parse(t.slice(a,b+1)),tab=j.table;
   if(!tab||!Array.isArray(tab.rows))throw Error('Data नहीं मिला');
   let n=(tab.cols||[]).length;
@@ -95,6 +95,7 @@ function parseGViz(t){
     (r.c||[]).forEach((c,i)=>{if(i<n)x[i]=val(c)});
     return x;
   });
+}
 dataon makeRecord(rows,badgeId){
   const target=norm(badgeId);
   const row=rows.find(r=>norm(r[0])===target);
