@@ -44,13 +44,20 @@ function fmtDate(v,context){let s=clean(v),m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[
   
 function act(v){
   let s=clean(v);
+  if(!s)return '';
+
   let u=s.toUpperCase();
 
-  if(u==='DAY'||u==='D'||s==='दिन')return'दिन';
-  if(u==='NIGHT'||u==='N'||s==='रात')return'रात';
-  if(u==='BEAS'||s==='ब्यास'||s==='ब्यास सेवा')return'ब्यास';
-  if(u.includes('LIPAI')||s.includes('लिपाई'))return'लिपाई';
-  if(u.includes('SAHARANPUR')||s.includes('सहारनपुर'))return'सहारनपुर';
+  if(u==='DAY' || u==='D' || s==='दिन') return 'दिन';
+  if(u==='NIGHT' || u==='N' || s==='रात') return 'रात';
+  if(u==='BEAS' || s==='ब्यास') return 'ब्यास';
+
+  if(u.includes('LIPAI') || s.includes('लिपाई')) return 'लिपाई';
+
+  if(u.includes('SAHARANPUR') || s.includes('सहारनपुर')) return 'सहारनपुर';
+
+  if(u.includes('BANGALORE')) return 'बैंगलोर';
+  if(u.includes('PORT BLAIR')) return 'पोर्ट ब्लेयर';
 
   return s;
 }
