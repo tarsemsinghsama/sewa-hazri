@@ -287,6 +287,8 @@ function makeRecords(rows,badgeRow){
   }
 
   const activityRow=dateRow+1;
+  const fixedActivityRow=rows[2]||[];
+
   const badgeRowData=rows[badgeRow]||[];
 
   const cols=Math.max(
