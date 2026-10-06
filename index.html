@@ -61,13 +61,77 @@ function getRecent(){try{return JSON.parse(localStorage.getItem('sewaHazriRecent
 function saveRecent(id){let a=getRecent().filter(x=>x!==id);a.unshift(id);localStorage.setItem('sewaHazriRecent',JSON.stringify(a.slice(0,5)))}
 function val(c){if(!c)return '';if(c.f!==undefined&&c.f!==null&&clean(c.f)!=='')return c.f;if(c.v!==undefined&&c.v!==null)return c.v;return ''}
 function parseGViz(t){let a=t.indexOf('{'),b=t.lastIndexOf('}');if(a<0||b<0)throw Error('Google Sheet response नहीं मिला');let j=JSON.parse(t.slice(a,b+1)),tab=j.table;if(!tab||!Array.isArray(tab.rows))throw Error('Google Sheet में data नहीं मिला');let n=(tab.cols||[]).length;return tab.rows.map(r=>{let x=new Array(n).fill('');(r.c||[]).forEach((c,i)=>{if(i<n)x[i]=val(c)});return x})}
-function isDate(v){let s=clean(v);return /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/.test(s)||/^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/.test(s)}
-function dateParts(v){let s=clean(v),m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);if(m)return[+m[3]<100?2000+ +m[3]:+m[3],+m[2],+m[1]];m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);if(m)return[+m[1],+m[2],+m[3]];return null}
-function fmtDate(v){let p=dateParts(v);return p?String(p[2]).padStart(2,'0')+'-'+String(p[1]).padStart(2,'0')+'-'+p[0]:clean(v)}
-function activity(v){let s=clean(v),u=s.toUpperCase();if(u==='DAY'||u==='D'||s==='दिन')return'दिन';if(u==='NIGHT'||u==='N'||s==='रात')return'रात';if(u==='BEAS'||s==='ब्यास'||s==='ब्यास सेवा')return'ब्यास';if(u.includes('LIPAI')||s.includes('लिपाई'))return'लिपाई';if(u.includes('SAHARANPUR')||s.includes('सहारनपुर'))return'सहारनपुर';return s}
-function number(v){let n=Number(clean(v).replace(/,/g,''));return Number.isFinite(n)?n:0}
-function findDateRow(rows,badgeRow){for(let r=0;r<badgeRow;r++)if(rows[r]?.some(isDate))return r;return 2}
-function makeRecord(rows,br,badgeId){
+
+function parseGViz(t){
+  let a=t.indexOf('{'),b=t.lastIndexOf('}');
+  if(a<0||b<0)throw Error('Google Sheet response नहीं मिला');
+
+  let j=JSON.parse(t.slice(a,b+1)),tab=j.table;
+
+  if(!tab||!Array.isArray(tab.rows))
+    throw Error('Google Sheet में data नहीं मिला');
+
+  let n=(tab.cols||[]).length;
+
+  return tab.rows.map(r=>{
+    let x=new Array(n).fill('');
+
+    (r.c||[]).forEach((c,i)=>{
+      if(i<n){
+        if(c && c.f!==undefined && c.f!==null && String(c.f).trim()!=='')
+          x[i]=c.f;
+        else if(c && c.v!==undefined && c.v!==null)
+          x[i]=c.v;
+      }
+    });
+
+    return x;
+  });
+}
+
+
+function makeRecord(rows,badgeId){
+
+  const target=norm(badgeId);
+
+  const row=rows.find(r=>
+    norm(r[0])===target
+  );
+
+  if(!row)return null;
+
+  return {
+    badge:clean(row[0]),
+    name:clean(row[1]),
+    parent:clean(row[2]),
+    day:Number(row[3])||0,
+    night:Number(row[4])||0,
+    saturday:Number(row[5])||0,
+    sunday:Number(row[6])||0,
+    lipai:Number(row[7])||0,
+    beas:Number(row[8])||0
+  };
+}
+
+
+async function loadBadge(badgeId){
+
+  const u=
+    'https://docs.google.com/spreadsheets/d/'
+    +SHEET_ID
+    +'/gviz/tq?tqx=out:json&sheet='
+    +encodeURIComponent(SHEET_NAME)
+    +'&t='+Date.now();
+
+  const r=await fetch(u,{cache:'no-store'});
+
+  if(!r.ok)
+    throw Error('Google Sheet नहीं खुल रही');
+
+  const rows=parseGViz(await r.text());
+
+  return makeRecord(rows,badgeId);
+}{
  const dateRow=findDateRow(rows,br),actRow=dateRow+1,row=rows[br]||[];
  let badgeCol=row.findIndex(v=>norm(v)===norm(badgeId));
  if(badgeCol<0)throw Error('Badge ID row नहीं मिली');
@@ -126,3 +190,4 @@ window.addEventListener('popstate',boot);boot();
 
 
 
+div
