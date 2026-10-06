@@ -1,65 +1,486 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#760000">
-<title>Sewadar Information Portal — सिकन्दरपुर</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>तारीख़वार हाज़री</title>
 <style>
-:root{--maroon:#790000;--ink:#182235;--muted:#697386;--line:#dfe3e8}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto Sans Devanagari","Noto Sans",Arial,sans-serif;color:var(--ink);background:#fff}body{min-height:100vh}.page{min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;background:#fff}
-.watermark{position:absolute;z-index:0;left:50%;top:52%;width:min(82vw,470px);height:min(82vw,470px);transform:translate(-50%,-50%);background-position:center;background-size:contain;background-repeat:no-repeat;opacity:.10;pointer-events:none}
-.top{position:relative;z-index:2;text-align:center;padding:25px 18px 0}.top-logo{width:56px;height:56px;object-fit:contain;display:block;margin:0 auto 17px}.title{font-size:27px;line-height:1.15;font-weight:800;letter-spacing:-.5px}.subtitle{font-size:22px;line-height:1.2;color:#687284;margin-top:5px;font-weight:600}
-.result-top{position:relative;z-index:2;padding:18px 18px 0}.back{border:0;background:transparent;color:var(--maroon);font-size:20px;font-weight:650;padding:5px 0;cursor:pointer}.back span{font-size:31px;vertical-align:-2px;margin-right:5px}.identity{text-align:center;margin-top:28px}.badge{font-size:24px;font-weight:850;letter-spacing:.2px;overflow-wrap:anywhere}.person-name{font-size:20px;font-weight:800;margin-top:5px}.parent-name{font-size:18px;color:#747d8c;margin-top:4px;font-weight:550}
-.summary{position:relative;z-index:2;width:min(100% - 28px,560px);margin:25px auto 0;border:1px solid rgba(222,226,232,.9);border-radius:16px;background:rgba(255,255,255,.62);box-shadow:0 7px 24px rgba(25,37,52,.08);overflow:hidden;backdrop-filter:blur(1.2px)}.summary h2{margin:0;padding:19px 20px 13px;color:var(--maroon);font-size:24px;line-height:1.2}.status{position:relative;z-index:2;text-align:center;color:#687386;font-size:15px;padding:0 15px 14px}.status.err{color:#a32020}.date-list{border-top:1px solid rgba(218,223,229,.9)}.date-row{display:grid;grid-template-columns:1fr 82px;align-items:center;min-height:70px;padding:12px 18px;border-bottom:1px solid rgba(218,223,229,.9);background:rgba(255,255,255,.34)}.date-row:last-child{border-bottom:0}.date-info{min-width:0;text-align:left}.date{font-size:17px;font-weight:800;color:#303b4d;line-height:1.25}.activity{font-size:15px;color:#697386;font-weight:600;margin-top:3px}.count{text-align:right;font-size:27px;font-weight:850;color:var(--ink)}.empty{padding:20px 14px;text-align:center;color:var(--maroon);font-size:16px}.updated{text-align:center;position:relative;z-index:2;color:#687386;font-size:15px;margin:18px 12px 0}.calendar{font-size:18px;margin-right:7px}
-footer{position:relative;z-index:10;text-align:center;padding:12px 12px 24px;margin-top:auto;color:var(--maroon);font-size:12px;font-weight:650;opacity:.60}footer:before,footer:after{content:"";display:inline-block;vertical-align:middle;width:68px;height:1px;background:currentColor;margin:0 18px 3px}
-@media(max-width:520px){.top{padding-top:25px}.top-logo{width:56px;height:56px}.title{font-size:27px}.subtitle{font-size:22px}.identity{margin-top:28px}.badge{font-size:24px}.person-name{font-size:20px}.parent-name{font-size:18px}.summary h2{font-size:22px}.date-row{grid-template-columns:1fr 70px;min-height:68px;padding:11px 12px}.date{font-size:16px}.activity{font-size:14px}.count{font-size:25px}footer:before,footer:after{width:44px;margin:0 10px 3px}}
+:root{--maroon:#790000;--muted:#697386;--line:#dfe3e8}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#fff;color:#182235}
+body{overflow-x:hidden}
+.watermark{position:fixed;left:50%;top:52%;transform:translate(-50%,-50%);width:min(620px,88vw);opacity:.075;pointer-events:none;z-index:0}
+.watermark img{width:100%;display:block}
+.top{position:relative;z-index:2;text-align:center;padding:28px 15px 10px}
+.top-logo{width:112px;height:112px;object-fit:contain;display:block;margin:0 auto 5px}
+h1{margin:0;color:var(--maroon);font-size:29px;font-weight:800}
+.sub{margin-top:5px;font-size:23px;font-weight:800}
+.nav{position:relative;z-index:2;display:flex;gap:10px;width:min(660px,calc(100% - 30px));margin:18px auto 20px}
+.nav a{flex:1;display:block;text-align:center;text-decoration:none;color:var(--maroon);background:#fff;border:1.5px solid var(--maroon);border-radius:14px;padding:15px 8px;font-size:17px;font-weight:800}
+.card{position:relative;z-index:2;width:min(660px,calc(100% - 30px));margin:0 auto;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:17px;box-shadow:0 5px 18px rgba(0,0,0,.08);padding:20px 14px}
+.badge-label{text-align:center;color:var(--muted);font-size:18px}
+.badge{text-align:center;color:var(--maroon);font-size:28px;font-weight:900;margin-top:8px;word-break:break-word}
+.title{text-align:center;color:var(--maroon);font-size:27px;font-weight:900;margin:20px 0 14px}
+.status{text-align:center;color:var(--muted);font-size:15px;margin:0 0 14px}
+.table-wrap{width:100%;overflow-x:auto;border:1px solid #eadede;border-radius:12px;background:#fff}
+table{width:100%;border-collapse:collapse;min-width:390px}
+th,td{border-bottom:1px solid #eadede;padding:11px 9px;text-align:left;font-size:15px}
+th{background:#fff7f7;color:var(--maroon);font-weight:800;white-space:nowrap}
+td:last-child,th:last-child{text-align:center;width:90px}
+tr:last-child td{border-bottom:none}
+.empty,.error{padding:18px 12px;text-align:center;border-radius:12px;font-size:16px;line-height:1.6}
+.empty{color:var(--maroon);background:#fff8f8;border:1px solid #eadede}
+.error{color:#8a1f1f;background:#fff6f6;border:1px solid #eadede}
+.footer{position:relative;z-index:2;text-align:center;color:var(--muted);font-size:16px;margin:54px 0 30px}
+.footer b{color:var(--maroon)}
+@media(max-width:600px){
+.top{padding-top:22px}.top-logo{width:76px;height:76px}h1{font-size:25px}.sub{font-size:20px}
+.nav{margin-top:16px}.nav a{padding:13px 6px;font-size:16px}
+.card{padding:18px 10px}.badge{font-size:26px}.title{font-size:25px}
+th,td{font-size:14px;padding:10px 7px}
+}
 </style>
 </head>
 <body>
-<div class="page">
-<div id="watermark" class="watermark"></div>
-<header class="top"><img id="topLogo" class="top-logo" alt="RS SB"><div class="title">Sewadar Information Portal</div><div class="subtitle">सिकन्दरपुर</div></header>
-<div class="result-top"><button type="button" class="back" id="backBtn"><span>‹</span>Back</button><div class="identity"><div id="badge" class="badge">—</div><div id="personName" class="person-name"></div><div id="parentName" class="parent-name"></div></div></div>
-  
-<section class="summary">
 
-  <h2>MaleFemaleSKP — तारीख़वार हाज़री</h2>
+<div class="watermark"><img id="watermarkLogo" alt=""></div>
 
-  <iframe
-  id="sheetFrame"
-  style="
-    width:100%;
-    height:65vh;
-    min-height:500px;
-    border:0;
-    display:block;
-    background:#fff;
-  ">
-</iframe>
+<header class="top">
+<img id="topLogo" class="top-logo" alt="RSB">
+<h1>Sewadar Information Portal</h1>
+<div class="sub">सिकन्दरपुर</div>
+</header>
 
-</section>
-<div class="updated"><span class="calendar">▣</span>Live Data Updates</div><footer>Contact No.: +91 93156 64443</footer>
-</div>
+<nav class="nav">
+<a href="./index.html">🏠 Home Page</a>
+<a id="secondPageLink" href="./index.html">⬅️ 2nd Page</a>
+</nav>
 
+<main class="card">
+<div class="badge-label">Badge ID</div>
+<div id="badge" class="badge">—</div>
+<div class="title">तारीख़वार हाज़री</div>
+<div id="status" class="status">हाज़री की जानकारी लोड हो रही है...</div>
+<div id="result"></div>
+</main>
 
+<footer class="footer">Contact No.: <b>+91 93156 64443</b></footer>
 
 <script>
-  
-document.getElementById('sheetFrame').src =
-  'https://docs.google.com/spreadsheets/d/1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8/gviz/tq' +
-  '?tqx=out:html' +
-  '&headers=0' +
-  '&sheet=MaleFemaleSKP' +
-  '&tq=' +
-  encodeURIComponent(
-    "select * where A = '" +
-    BADGE_ID +
-    "'"
+const SHEET_ID='1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8';
+const SHEET_NAME='MaleFemaleSKP';
+
+const params=new URLSearchParams(location.search);
+const BADGE_ID=(params.get('badge')||'').trim();
+
+document.getElementById('badge').textContent=BADGE_ID||'—';
+if(BADGE_ID){
+  document.getElementById('secondPageLink').href='./index.html?badge='+encodeURIComponent(BADGE_ID);
+}
+
+function clean(v){
+  return String(v??'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+}
+
+function norm(v){
+  return clean(v).toUpperCase().replace(/[^A-Z0-9\u0900-\u097F]/g,'');
+}
+
+/*
+  Google Visualization में formatted value (f) को पहले लेना जरूरी है।
+  Date cell का raw value कई बार Date(2025,9,7) जैसा आता है,
+  जबकि f में 07-Oct मिलता है।
+*/
+function val(c){
+  if(!c)return '';
+  if(c.f!==undefined && c.f!==null && clean(c.f)!=='')return c.f;
+  if(c.v!==undefined && c.v!==null)return c.v;
+  return '';
+}
+
+function parseGViz(text){
+  const a=text.indexOf('{');
+  const b=text.lastIndexOf('}');
+  if(a<0 || b<0)throw Error('Google Sheet response नहीं मिला');
+
+  const json=JSON.parse(text.slice(a,b+1));
+  const table=json.table;
+
+  if(!table || !Array.isArray(table.rows)){
+    throw Error('Google Sheet में data नहीं मिला');
+  }
+
+  const n=(table.cols||[]).length;
+
+  return table.rows.map(row=>{
+    const out=new Array(n).fill('');
+    (row.c||[]).forEach((cell,i)=>{
+      if(i<n)out[i]=val(cell);
+    });
+    return out;
+  });
+}
+
+/* 07-Oct, 7-Oct, 07/10/2025, 07-10-2025 आदि पहचानना */
+function isShortDate(v){
+  const s=clean(v);
+
+  if(/^\d{1,2}[-\/.](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(s))return true;
+  if(/^\d{1,2}[-\/.](January|February|March|April|May|June|July|August|September|October|November|December)$/i.test(s))return true;
+
+  if(/^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/.test(s))return true;
+  if(/^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/.test(s))return true;
+
+  return /^Date\(\d{4},\d{1,2},\d{1,2}\)$/i.test(s);
+}
+
+function monthNumber(name){
+  const m={
+    JANUARY:1,FEBRUARY:2,MARCH:3,APRIL:4,MAY:5,JUNE:6,
+    JULY:7,AUGUST:8,SEPTEMBER:9,OCTOBER:10,NOVEMBER:11,DECEMBER:12,
+    JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12
+  };
+  return m[name.toUpperCase()]||0;
+}
+
+function monthHeader(v){
+  const s=clean(v).toUpperCase().replace(/\s+/g,'_');
+  const m=s.match(/^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[_-]?(\d{4})$/);
+  if(!m)return null;
+
+  return {
+    month:monthNumber(m[1]),
+    year:Number(m[2])
+  };
+}
+
+function two(n){
+  return String(n).padStart(2,'0');
+}
+
+/*
+  Sheet में screenshot के अनुसार:
+  row 1 -> OCTOBER_2025
+  row 2 -> 07-Oct, 07-Oct, 11-Oct...
+  row 3 -> DAY, NIGHT, DAY...
+*/
+function formatDateCell(value,monthInfo){
+  const s=clean(value);
+
+  let m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/i);
+  if(m){
+    return two(Number(m[3]))+'-'+two(Number(m[2])+1)+'-'+m[1];
+  }
+
+  m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);
+  if(m){
+    let y=m[3];
+    if(y.length===2)y='20'+y;
+    return two(Number(m[1]))+'-'+two(Number(m[2]))+'-'+y;
+  }
+
+  m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+  if(m){
+    return two(Number(m[3]))+'-'+two(Number(m[2]))+'-'+m[1];
+  }
+
+  m=s.match(/^(\d{1,2})[-\/.]([A-Za-z]{3,9})$/);
+  if(m && monthInfo){
+    const mn=monthNumber(m[2]);
+    if(mn){
+      return two(Number(m[1]))+'-'+two(mn)+'-'+monthInfo.year;
+    }
+  }
+
+  return s;
+}
+
+function activity(v){
+  const s=clean(v);
+  const u=s.toUpperCase();
+
+  if(u==='DAY' || u==='D' || s==='दिन')return'दिन';
+  if(u==='NIGHT' || u==='N' || s==='रात')return'रात';
+  if(u==='BEAS' || s==='ब्यास' || s==='ब्यास सेवा')return'ब्यास';
+  if(u.includes('LIPAI') || s.includes('लिपाई'))return'लिपाई';
+  if(u.includes('SAHARANPUR') || s.includes('सहारनपुर'))return'सहारनपुर';
+
+  return s;
+}
+
+function attendanceNumber(v){
+  const s=clean(v).replace(/,/g,'');
+  if(!s)return null;
+
+  const n=Number(s);
+  if(Number.isFinite(n) && n>0)return n;
+
+  return null;
+}
+
+function findBadgeRow(rows,badge){
+  const target=norm(badge);
+
+  for(let r=0;r<rows.length;r++){
+    for(let c=0;c<Math.min(rows[r].length,5);c++){
+      if(norm(rows[r][c])===target)return r;
+    }
+  }
+
+  return -1;
+}
+
+/*
+  Badge row से ऊपर date वाली row खोजी जाती है।
+  Date row के ठीक नीचे activity row होती है।
+*/
+function findDateRow(rows,badgeRow){
+  let best=-1;
+  let bestCount=0;
+
+  for(let r=0;r<badgeRow;r++){
+    let count=0;
+
+    for(let c=0;c<rows[r].length;c++){
+      if(isShortDate(rows[r][c]))count++;
+    }
+
+    if(count>bestCount){
+      bestCount=count;
+      best=r;
+    }
+  }
+
+  return best;
+}
+
+/*
+  Month header को date columns तक carry किया जाता है।
+  इससे OCTOBER_2025 + 07-Oct मिलकर 07-10-2025 बनता है।
+*/
+function buildMonthMap(rows,dateRow,cols){
+  const map=new Array(cols).fill(null);
+  let current=null;
+
+  for(let r=0;r<=dateRow;r++){
+    for(let c=0;c<cols;c++){
+      const mh=monthHeader(rows[r]?.[c]);
+
+      if(mh){
+        current=mh;
+      }
+
+      if(r===dateRow && current){
+        map[c]=current;
+      }
+    }
+  }
+
+  return map;
+}
+
+function makeRecords(rows,badgeRow){
+  const dateRow=findDateRow(rows,badgeRow);
+
+  if(dateRow<0){
+    throw Error('तारीख़ वाली row नहीं मिली');
+  }
+
+  const activityRow=dateRow+1;
+  const badgeRowData=rows[badgeRow]||[];
+
+  const cols=Math.max(
+    badgeRowData.length,
+    rows[dateRow]?.length||0,
+    rows[activityRow]?.length||0,
+    ...rows.map(r=>r.length)
   );
-  
+
+  const monthMap=buildMonthMap(rows,dateRow,cols);
+
+  let currentMonth=null;
+  const result=[];
+
+  for(let c=0;c<cols;c++){
+
+    /*
+      अगर किसी अलग month header को उसी column पर पाया गया हो,
+      तो आगे के columns के लिए उसे carry करें।
+    */
+    for(let r=0;r<dateRow;r++){
+      const mh=monthHeader(rows[r]?.[c]);
+      if(mh)currentMonth=mh;
+    }
+
+    const dateValue=rows[dateRow]?.[c]??'';
+
+    if(isShortDate(dateValue)){
+      const formatted=formatDateCell(
+        dateValue,
+        monthMap[c]||currentMonth
+      );
+
+      if(formatted){
+        currentMonth=monthMap[c]||currentMonth;
+      }
+    }
+
+    if(!isShortDate(dateValue))continue;
+
+    const dateText=formatDateCell(
+      dateValue,
+      monthMap[c]||currentMonth
+    );
+
+    if(!dateText)continue;
+
+    const act=activity(rows[activityRow]?.[c]??'');
+    const raw=badgeRowData[c]??'';
+    const number=attendanceNumber(raw);
+
+    /*
+      खाली cell या 0 को तारीख़वार सूची में नहीं दिखाना है।
+    */
+    if(number===null)continue;
+
+    let label=dateText;
+
+    if(act){
+      label+=' '+act;
+    }
+
+    result.push({
+      date:dateText,
+      activity:act,
+      value:number,
+      label:label
+    });
+  }
+
+  return result;
+}
+
+function esc(v){
+  return String(v??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+function show(items){
+  const status=document.getElementById('status');
+  const box=document.getElementById('result');
+
+  if(!items.length){
+    status.textContent='डेटा मिल गया, लेकिन इस Badge ID की कोई तारीख़वार हाज़री नहीं मिली।';
+    box.innerHTML='<div class="empty">इस Badge ID की तारीख़वार हाज़री नहीं मिली।</div>';
+    return;
+  }
+
+  status.textContent='कुल '+items.length+' तारीख़/गतिविधियाँ मिलीं।';
+
+  let html=
+    '<div class="table-wrap">'+
+    '<table>'+
+    '<thead><tr>'+
+    '<th>तारीख़ / गतिविधि</th>'+
+    '<th>हाज़री</th>'+
+    '</tr></thead><tbody>';
+
+  items.forEach(item=>{
+    html+=
+      '<tr>'+
+      '<td>'+esc(item.label)+'</td>'+
+      '<td>'+esc(item.value)+'</td>'+
+      '</tr>';
+  });
+
+  html+='</tbody></table></div>';
+
+  box.innerHTML=html;
+}
+
+async function logo(){
+  try{
+    const r=await fetch('./index.html',{cache:'no-store'});
+    if(!r.ok)return;
+
+    const t=await r.text();
+    const m=t.match(/data:image\/png;base64,[A-Za-z0-9+/=]+/i);
+
+    if(m){
+      document.getElementById('topLogo').src=m[0];
+      document.getElementById('watermarkLogo').src=m[0];
+    }
+  }catch(e){
+    console.error(e);
+  }
+}
+
+async function load(){
+  const status=document.getElementById('status');
+  const box=document.getElementById('result');
+
+  if(!BADGE_ID){
+    status.textContent='Badge ID नहीं मिली।';
+    box.innerHTML='<div class="error">कृपया 2nd Page से “तारीख़वार हाज़री” खोलें।</div>';
+    return;
+  }
+
+  try{
+    const url=
+      'https://docs.google.com/spreadsheets/d/'+
+      SHEET_ID+
+      '/gviz/tq?tqx=out:json&sheet='+
+      encodeURIComponent(SHEET_NAME)+
+      '&t='+Date.now();
+
+    const response=await fetch(url,{cache:'no-store'});
+
+    if(!response.ok){
+      throw Error('Google Sheet खुल नहीं रही');
+    }
+
+    const rows=parseGViz(await response.text());
+
+    const badgeRow=findBadgeRow(rows,BADGE_ID);
+
+    if(badgeRow<0){
+      status.textContent='Badge ID नहीं मिली।';
+      box.innerHTML=
+        '<div class="error">'+
+        'Google Sheet <b>'+esc(SHEET_NAME)+'</b> में '+
+        '<b>'+esc(BADGE_ID)+'</b> नहीं मिली।'+
+        '</div>';
+      return;
+    }
+
+    const items=makeRecords(rows,badgeRow);
+
+    show(items);
+
+  }catch(e){
+    console.error(e);
+
+    status.textContent='डेटा लोड नहीं हो सका.';
+
+    box.innerHTML=
+      '<div class="error">'+
+      '<b>Google Sheet से तारीख़वार हाज़री नहीं आ सकी।</b>'+
+      '<br><br>'+
+      'Google Sheet public/readable होनी चाहिए और '+
+      esc(SHEET_NAME)+
+      ' tab उपलब्ध होना चाहिए।'+
+      '<br><br>'+
+      'Error: '+esc(e.message||e)+
+      '</div>';
+  }
+}
+
+logo();
+load();
 </script>
 </body>
 </html>
-  
-  
