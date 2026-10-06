@@ -96,7 +96,7 @@ function parseGViz(t){
     return x;
   });
 }
-dataon makeRecord(rows,badgeId){
+function makeRecord(rows,badgeId){
   const target=norm(badgeId);
   const row=rows.find(r=>norm(r[0])===target);
   if(!row)return null;
