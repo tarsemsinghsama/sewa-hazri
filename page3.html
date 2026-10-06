@@ -1,4 +1,4 @@
-<!doctype html>
+infoDateRowtiontionctype html>
 <html lang="hi">
 <head>
 <meta charset="utf-8">
@@ -62,7 +62,8 @@ function act(v){
 }
   
 function findBadge(rows,id){let t=norm(id);for(let r=0;r<rows.length;r++)for(let c=0;c<rows[r].length;c++)if(norm(rows[r][c])===t)return{r,c};return null}
-function findDateRow(rows,br){let best=-1,countBest=0;for(let r=0;r<br;r++){let n=rows[r].filter(isDate).length;if(n>countBest){countBest=n;best=r}}return best}
+  
+
 function findMonthRow(rows,dr){let best=-1,countBest=0;for(let r=0;r<dr;r++){let n=rows[r].filter(isMonthYear).length;if(n>countBest){countBest=n;best=r}}return best}
   
 function make(rows,info){
@@ -149,34 +150,279 @@ function make(rows,info){
     // दोनों हों
     if(main && special){
       finalActivity=main+' '+special;
+function isMainActivity(v){
+  const s=clean(v).toUpperCase();
+
+  return (
+    s==='DAY' ||
+    s==='D' ||
+    s==='NIGHT' ||
+    s==='N' ||
+    s==='BEAS' ||
+    s==='ब्यास' ||
+    s==='दिन' ||
+    s==='रात'
+  );
+}
+
+function findDateRow(rows,br){
+
+  let best=-1;
+  let bestScore=-1;
+
+  for(let r=0;r<br;r++){
+
+    let dateCount=0;
+    let activityCount=0;
+
+    for(let c=0;c<rows[r].length;c++){
+
+      if(isDate(rows[r][c])){
+        dateCount++;
+      }
+
+      if(isMainActivity(rows[r+1]?.[c])){
+        activityCount++;
+      }
     }
 
-    // केवल main activity
-    else if(main){
-      finalActivity=main;
+    /*
+      सही Date Row वही होगी:
+      1. जिसमें बहुत सारी dates हों
+      2. जिसके ठीक नीचे DAY/NIGHT/BEAS जैसी activity हो
+    */
+
+    const score=(dateCount*10)+activityCount;
+
+    if(dateCount>0 && score>bestScore){
+      bestScore=score;
+      best=r;
+    }
+  }
+
+  return best;
+}
+
+
+function make(rows,info){
+
+  const br=info.r;
+  const bc=info.c;
+
+  const brow=rows[br]||[];
+
+  /*
+    आपकी Sheet:
+
+    Row 2 = Date
+    Row 3 = Activity
+    Row 4 = Special Activity
+    Row 5+ = Sewadar
+  */
+
+  const dr=findDateRow(rows,br);
+
+  if(dr<0){
+
+    return{
+      name:clean(brow[1]),
+      parent:clean(brow[2]),
+      out:[]
+    };
+  }
+
+  const activityRow=dr+1;
+  const specialRow=dr+2;
+
+  const mr=findMonthRow(rows,dr);
+
+  let monthContext=null;
+  let currentDate='';
+
+  const name=clean(brow[1]);
+  const parent=clean(brow[2]);
+
+  const out=[];
+
+  const max=Math.max(
+    (rows[dr]||[]).length,
+    (rows[activityRow]||[]).length,
+    (rows[specialRow]||[]).length,
+    brow.length,
+    mr>=0 ? (rows[mr]||[]).length : 0
+  );
+
+
+  for(let c=0;c<max;c++){
+
+    /*
+      Month / Year
+    */
+
+    if(
+      mr>=0 &&
+      isMonthYear(rows[mr]?.[c])
+    ){
+
+      monthContext=monthYear(rows[mr][c]);
     }
 
-    // केवल special activity
-    else if(special){
-      finalActivity=special;
+
+    /*
+      Date
+    */
+
+    const dateCell=clean(
+      rows[dr]?.[c] ?? ''
+    );
+
+    if(isDate(dateCell)){
+
+      currentDate=fmtDate(
+        dateCell,
+        monthContext
+      );
     }
 
-    // activity ही नहीं है तो नहीं दिखाना
-    else{
+
+    if(!currentDate){
       continue;
     }
 
+
+    /*
+      Badge की attendance
+    */
+
+    const raw=clean(
+      brow[c] ?? ''
+    );
+
+    /*
+      खाली cell = बिल्कुल नहीं दिखाना
+    */
+
+    if(raw===''){
+      continue;
+    }
+
+
+    const n=Number(
+      raw.replace(/,/g,'')
+    );
+
+
+    /*
+      केवल 1 या उससे ज्यादा
+    */
+
+    if(
+      !Number.isFinite(n) ||
+      n<1
+    ){
+      continue;
+    }
+
+
+    /*
+      Row 3 = Main Activity
+    */
+
+    const main=act(
+      rows[activityRow]?.[c] ?? ''
+    );
+
+
+    /*
+      Row 4 = Special Activity
+    */
+
+    const special=act(
+      rows[specialRow]?.[c] ?? ''
+    );
+
+
+    let finalActivity='';
+
+
+    /*
+      DAY + LIPAI
+      = दिन लिपाई
+    */
+
+    if(
+      main &&
+      main!=='हाज़री' &&
+      special &&
+      special!=='हाज़री'
+    ){
+
+      finalActivity=
+        main+' '+special;
+    }
+
+
+    /*
+      केवल Main Activity
+    */
+
+    else if(
+      main &&
+      main!=='हाज़री'
+    ){
+
+      finalActivity=main;
+    }
+
+
+    /*
+      केवल Special Activity
+    */
+
+    else if(
+      special &&
+      special!=='हाज़री'
+    ){
+
+      finalActivity=special;
+    }
+
+
+    /*
+      अगर Activity नहीं मिली
+      तो column छोड़ दें
+    */
+
+    else{
+
+      continue;
+    }
+
+
+    /*
+      Final record
+    */
+
     out.push({
-      date:current,
+
+      date:currentDate,
+
       activity:finalActivity,
+
       count:n
+
     });
   }
 
+
   return{
-    name,
-    parent,
-    out
+
+    name:name,
+
+    parent:parent,
+
+    out:out
+
   };
 }
 async function load(){let u='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:json&sheet='+encodeURIComponent(SHEET_NAME)+'&t='+Date.now();let r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error('Google Sheet खुल नहीं रही');return parseGViz(await r.text())}
