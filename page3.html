@@ -464,8 +464,8 @@ function show(items){
   items.forEach(item=>{
     html+=
     '<tr>'+
-    '<td>'+esc(item.label)+'</td>'+
-    '<td>'+esc(item.value)+'</td>'+
+    '<td>'+esc(item.date)+(item.activity ? ' '+esc(item.activity) : '')+'</td>'+
+  '<td>'+esc(item.count)+'</td>'+
     '</tr>';
 });
   html+='</tbody></table></div>';
