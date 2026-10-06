@@ -68,7 +68,6 @@ footer::before, footer::after {
     
 const SHEET_ID='1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8';
 const SHEET_NAME='WEB_DATA';
-const UPDATED='Real-Time Data Updates';
     
 const UPDATED='Last Updated on 03 October, 2026';
 let records=null;
@@ -290,8 +289,27 @@ function resultPage(rec){
 };
 }
     
-async function boot(){const q=new URLSearchParams(location.search).get('badge');if(q){try{const data=await load();const rec=data.find(x=>norm(x.badge)===norm(q));if(rec){resultPage(rec);return}}catch{}}searchPage(q||'')}
-window.addEventListener('popstate',boot);boot();
+async function boot(){
+  const q=new URLSearchParams(location.search).get('badge');
+
+  if(q){
+    try{
+      const rec=await loadBadge(q);
+
+      if(rec){
+        resultPage(rec);
+        return;
+      }
+    }catch(e){
+      console.error(e);
+    }
+  }
+
+  searchPage(q||'');
+}
+
+window.addEventListener('popstate',boot);
+boot();
 </script>
 </body>
 </html>
