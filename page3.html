@@ -558,57 +558,53 @@ function findBadge(rows,id){
 
 function makeRecord(rows,info){
 
-  const badgeRow=
-    info.row;
+  const badgeRow=info.row;
+  const personRow=rows[badgeRow]||[];
 
-  const personRow=
-    rows[badgeRow]||[];
+  const headers=findHeaderRows(rows);
 
+  const dateRowIndex=headers.dateRow;
+  const activityRowIndex=headers.activityRow;
 
-  const headers=
-    findHeaderRows(rows);
+  const record={
+    badge:clean(personRow[0])||BADGE_ID,
+    name:clean(personRow[1]),
+    parent:clean(personRow[2]),
+    out:[]
+  };
 
+  if(dateRowIndex<0 || activityRowIndex<0){
+    return record;
+  }
 
-  const dateRowIndex=
-    headers.dateRow;
+  const dateRow=rows[dateRowIndex]||[];
+  const activityRow=rows[activityRowIndex]||[];
 
-  const activityRowIndex=
-    headers.activityRow;
+  /*
+    Sheet में Month/Year ऊपर की row में हो सकता है।
+    इसलिए हर column के लिए उसका Month/Year सुरक्षित रखें।
+  */
 
+  const columnMonth={};
+  let lastMonth=null;
 
-  if(
-    dateRowIndex<0 ||
-    activityRowIndex<0
-  ){
+  for(let r=0;r<dateRowIndex;r++){
 
-    return {
-      badge:clean(personRow[0])||BADGE_ID,
-      name:clean(personRow[1]),
-      parent:clean(personRow[2]),
-      out:[]
-    };
+    const row=rows[r]||[];
 
+    for(let c=0;c<row.length;c++){
+
+      const m=getMonthYear(row[c]);
+
+      if(m){
+        columnMonth[c]=m;
+        lastMonth=m;
+      }
+    }
   }
 
 
-  const dateRow=
-    rows[dateRowIndex]||[];
-
-  const activityRow=
-    rows[activityRowIndex]||[];
-
-
-  /*
-    Month row date row से पहले कहीं भी हो सकती है।
-    हर column के लिए latest month context रखें।
-  */
-
-  let monthContext=null;
-
   let currentDate=null;
-
-  const out=[];
-
 
   const max=Math.max(
     dateRow.length,
@@ -617,134 +613,76 @@ function makeRecord(rows,info){
   );
 
 
-  for(
-    let c=0;
-    c<max;
-    c++
-  ){
+  for(let c=4;c<max;c++){
 
-    /*
-      Date से पहले के rows में
-      उसी column का Month खोजें।
-    */
-
-    for(
-      let r=0;
-      r<dateRowIndex;
-      r++
-    ){
-
-      const m=
-        getMonthYear(
-          rows[r]?.[c]
-        );
-
-      if(m){
-
-        monthContext=m;
-
-      }
-
-    }
+    const monthContext=
+      columnMonth[c]||lastMonth;
 
 
     /*
-      Date
+      इस column की तारीख
     */
 
-    const d=
-      getDate(
-        dateRow[c],
-        monthContext
-      );
+    const d=getDate(
+      dateRow[c],
+      monthContext
+    );
 
+
+    /*
+      तारीख मिली तो आगे की columns के लिए
+      वही तारीख जारी रहेगी।
+    */
 
     if(d){
-
       currentDate=d;
-
-    }
-
-
-    /*
-      A-D = Badge/Name/FH/blank
-      E से Attendance
-    */
-
-    if(c<4){
-
-      continue;
-
     }
 
 
     if(!currentDate){
-
       continue;
-
     }
 
 
     /*
-      Attendance value
+      इस Badge की attendance
     */
 
-    const raw=
-      clean(
-        personRow[c]
-      );
-
+    const raw=clean(personRow[c]);
 
     if(!raw){
-
       continue;
-
     }
 
 
-    /*
-      केवल numeric attendance
-    */
-
-    const count=
-      Number(
-        raw.replace(/,/g,'')
-      );
+    const count=Number(
+      raw.replace(/,/g,'')
+    );
 
 
     if(
       !Number.isFinite(count) ||
       count<=0
     ){
-
       continue;
-
     }
 
 
     /*
-      उसी column की Activity
+      उसी column की activity
     */
 
-    let act=
-      activity(
-        activityRow[c]
-      );
+    let act=activity(
+      activityRow[c]
+    );
 
-
-    /*
-      Activity खाली हो तो attendance
-      फिर भी नहीं छोड़ेंगे।
-    */
 
     if(!act){
-
       act='अन्य';
-
     }
 
 
-    out.push({
+    record.out.push({
 
       date:formatDate(currentDate),
 
@@ -762,15 +700,13 @@ function makeRecord(rows,info){
 
 
   /*
-    तारीख़ के अनुसार क्रम
+    तारीख के क्रम में
   */
 
-  out.sort((a,b)=>{
+  record.out.sort((a,b)=>{
 
     if(a.sort!==b.sort){
-
       return a.sort-b.sort;
-
     }
 
     return a.column-b.column;
@@ -778,24 +714,8 @@ function makeRecord(rows,info){
   });
 
 
-  return {
-
-    badge:
-      clean(personRow[0]) ||
-      BADGE_ID,
-
-    name:
-      clean(personRow[1]),
-
-    parent:
-      clean(personRow[2]),
-
-    out:out
-
-  };
-
+  return record;
 }
-
 
 /* =========================
    LOAD SHEET
