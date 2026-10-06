@@ -463,12 +463,11 @@ function show(items){
 
   items.forEach(item=>{
     html+=
-      '<tr>'+
-      '<td>'+esc(item.label)+'</td>'+
-      '<td>'+esc(item.value)+'</td>'+
-      '</tr>';
-  });
-
+    '<tr>'+
+    '<td>'+esc(item.label)+(item.activity ? ' '+esc(item.activity) : '')+'</td>'+
+    '<td>'+esc(item.value)+'</td>'+
+    '</tr>';
+});
   html+='</tbody></table></div>';
 
   box.innerHTML=html;
