@@ -43,59 +43,60 @@ function isDate(v){let s=clean(v);return /^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/.t
 function fmtDate(v,context){let s=clean(v),m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);if(m)return m[1].padStart(2,'0')+'-'+m[2].padStart(2,'0')+'-'+m[3];m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);if(m)return m[3].padStart(2,'0')+'-'+m[2].padStart(2,'0')+'-'+m[1];m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/);if(m)return m[3].padStart(2,'0')+'-'+String(Number(m[2])+1).padStart(2,'0')+'-'+m[1];m=s.match(/^(\d{1,2})[- ]([A-Za-z]+)$/);if(m&&context){let mo=MONTHS[m[2].toLowerCase()];if(mo)return m[1].padStart(2,'0')+'-'+String(mo).padStart(2,'0')+'-'+context.year}return s}
   
 function act(v){
+
   let s=clean(v);
+
   if(!s)return '';
 
   let u=s.toUpperCase();
 
-  if(u==='DAY' || u==='D' || s==='दिन') return 'दिन';
-  if(u==='NIGHT' || u==='N' || s==='रात') return 'रात';
-  if(u==='BEAS' || s==='ब्यास') return 'ब्यास';
+  if(u==='DAY' || u==='D' || s==='दिन')
+    return 'दिन';
 
-  if(u.includes('LIPAI') || s.includes('लिपाई')) return 'लिपाई';
+  if(u==='NIGHT' || u==='N' || s==='रात')
+    return 'रात';
 
-  if(u.includes('SAHARANPUR') || s.includes('सहारनपुर')) return 'सहारनपुर';
+  if(u==='BEAS' || s==='ब्यास')
+    return 'ब्यास';
 
-  if(u.includes('BANGALORE')) return 'बैंगलोर';
-  if(u.includes('PORT BLAIR')) return 'पोर्ट ब्लेयर';
+  if(u.includes('LIPAI') || s.includes('लिपाई'))
+    return 'लिपाई';
+
+  if(u.includes('SAHARANPUR') || s.includes('सहारनपुर'))
+    return 'सहारनपुर';
+
+  if(u.includes('BANGALORE'))
+    return 'बैंगलोर';
+
+  if(u.includes('PORT BLAIR'))
+    return 'पोर्ट ब्लेयर';
+
+  if(u.includes('HUZUR DARSHAN'))
+    return 'हुजूर दर्शन';
 
   return s;
 }
+  
 function findBadge(rows,id){let t=norm(id);for(let r=0;r<rows.length;r++)for(let c=0;c<rows[r].length;c++)if(norm(rows[r][c])===t)return{r,c};return null}
 function findDateRow(rows,br){let best=-1,countBest=0;for(let r=0;r<br;r++){let n=rows[r].filter(isDate).length;if(n>countBest){countBest=n;best=r}}return best}
 function findMonthRow(rows,dr){let best=-1,countBest=0;for(let r=0;r<dr;r++){let n=rows[r].filter(isMonthYear).length;if(n>countBest){countBest=n;best=r}}return best}
+  
 function make(rows,info){
 
   const br=info.r;
   const bc=info.c;
   const brow=rows[br]||[];
 
-  const dr=findDateRow(rows,br);
-
-  if(dr<0){
-    return{
-      name:clean(brow[1]),
-      parent:clean(brow[2]),
-      out:[]
-    };
-  }
-
+  // आपकी MaleFemaleSKP sheet:
   // Row 2 = Date
-  const dateRow=rows[dr]||[];
-
   // Row 3 = Main Activity
-  const activityRow=rows[dr+1]||[];
-
   // Row 4 = Special Activity
-  const specialRow=rows[dr+2]||[];
+  const dateRow=rows[1]||[];
+  const mainRow=rows[2]||[];
+  const specialRow=rows[3]||[];
 
-  const name=bc===0
-    ? clean(brow[1])
-    : clean(brow.find((v,i)=>i!==bc && clean(v)));
-
-  const parent=bc===0
-    ? clean(brow[2])
-    : '';
+  const name=clean(brow[1]);
+  const parent=clean(brow[2]);
 
   const out=[];
   let current='';
@@ -103,17 +104,26 @@ function make(rows,info){
 
   const max=Math.max(
     dateRow.length,
-    activityRow.length,
+    mainRow.length,
     specialRow.length,
-    brow.length
+    brow.length,
+    1
   );
 
   for(let c=0;c<max;c++){
 
     const dateCell=clean(dateRow[c]??'');
-    const mainActivity=clean(activityRow[c]??'');
-    const specialActivity=clean(specialRow[c]??'');
+    const mainCell=clean(mainRow[c]??'');
+    const specialCell=clean(specialRow[c]??'');
     const raw=clean(brow[c]??'');
+
+    // Month heading से year निकालना
+    for(let r=0;r<2;r++){
+      const mv=clean(rows[r]?.[c]??'');
+      if(isMonthYear(mv)){
+        monthContext=monthYear(mv);
+      }
+    }
 
     // Date
     if(isDate(dateCell)){
@@ -122,19 +132,17 @@ function make(rows,info){
 
     if(!current)continue;
 
-    // Attendance number
+    // खाली / 0 attendance बिल्कुल नहीं दिखानी
     const n=Number(raw.replace(/,/g,''));
 
-    // केवल 1 या उससे ज्यादा
     if(!Number.isFinite(n) || n<1)continue;
 
     // Main activity
-    let main=act(mainActivity);
+    const main=act(mainCell);
 
     // Special activity
-    let special=act(specialActivity);
+    const special=act(specialCell);
 
-    // Main + Special
     let finalActivity='';
 
     if(main && special){
