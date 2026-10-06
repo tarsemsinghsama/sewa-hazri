@@ -25,7 +25,6 @@ footer{position:relative;z-index:10;text-align:center;padding:12px 12px 24px;mar
 <div class="updated"><span class="calendar">▣</span>Live Data Updates</div><footer>Contact No.: +91 93156 64443</footer>
 </div>
 
-
 <script>
 const SHEET_ID='1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8';
 const SHEET_NAME='MaleFemaleSKP';
@@ -35,48 +34,32 @@ const BADGE_ID=(params.get('badge')||'').trim();
 
 const $=id=>document.getElementById(id);
 
-$('badge').textContent=BADGE_ID||'—';
-
-
-/* =========================
-   BASIC FUNCTIONS
-========================= */
-
 function clean(v){
-
   return String(v??'')
     .replace(/\u00a0/g,' ')
     .replace(/\s+/g,' ')
     .trim();
-
 }
 
-
 function norm(v){
-
   return clean(v)
     .toUpperCase()
     .replace(/[^A-Z0-9\u0900-\u097F]/g,'');
-
 }
 
-
 function esc(v){
-
-  return String(v??'')
-    .replace(/[&<>"']/g,c=>({
-      '&':'&amp;',
-      '<':'&lt;',
-      '>':'&gt;',
-      '"':'&quot;',
-      "'":'&#39;'
-    }[c]));
-
+  return String(v??'').replace(/[&<>"']/g,c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  }[c]));
 }
 
 
 /* =========================
-   GOOGLE GVIZ
+   GOOGLE GVIZ DATA
 ========================= */
 
 function parseGViz(text){
@@ -85,25 +68,18 @@ function parseGViz(text){
   const end=text.lastIndexOf('}');
 
   if(start<0 || end<0){
-
-    throw new Error(
-      'Invalid Google Sheet response'
-    );
-
+    throw new Error('Invalid Google Sheet response');
   }
 
   const json=JSON.parse(
     text.slice(start,end+1)
   );
 
-  const rows=json.table?.rows||[];
-
-  return rows.map(row=>
-    (row.c||[]).map(cell=>
+  return (json.table?.rows||[]).map(row =>
+    (row.c||[]).map(cell =>
       cell ? (cell.f ?? cell.v ?? '') : ''
     )
   );
-
 }
 
 
@@ -112,40 +88,19 @@ function parseGViz(text){
 ========================= */
 
 const MONTHS={
-  jan:1,
-  january:1,
-  feb:2,
-  february:2,
-  mar:3,
-  march:3,
-  apr:4,
-  april:4,
+  jan:1,january:1,
+  feb:2,february:2,
+  mar:3,march:3,
+  apr:4,april:4,
   may:5,
-  jun:6,
-  june:6,
-  jul:7,
-  july:7,
-  aug:8,
-  august:8,
-  sep:9,
-  sept:9,
-  september:9,
-  oct:10,
-  october:10,
-  nov:11,
-  november:11,
-  dec:12,
-  december:12
+  jun:6,june:6,
+  jul:7,july:7,
+  aug:8,august:8,
+  sep:9,sept:9,september:9,
+  oct:10,october:10,
+  nov:11,november:11,
+  dec:12,december:12
 };
-
-
-function isMonthYear(v){
-
-  return /^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|SEPT|OCT|NOV|DEC)[ _-]?(20\d{2})$/i
-    .test(clean(v));
-
-}
-
 
 function monthYear(v){
 
@@ -157,16 +112,14 @@ function monthYear(v){
 
   if(!m)return null;
 
-  const mo=
-    MONTHS[m[1].toLowerCase()];
+  const mo=MONTHS[m[1].toLowerCase()];
 
-  return mo
-    ? {
-        month:mo,
-        year:Number(m[2])
-      }
-    : null;
+  if(!mo)return null;
 
+  return {
+    month:mo,
+    year:Number(m[2])
+  };
 }
 
 
@@ -174,38 +127,11 @@ function monthYear(v){
    DATE
 ========================= */
 
-function isDate(v){
+function parseDate(v,context){
 
   const s=clean(v);
 
-  return (
-
-    /^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/
-      .test(s)
-
-    ||
-
-    /^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/
-      .test(s)
-
-    ||
-
-    /^Date\(\d{4},\d{1,2},\d{1,2}\)$/
-      .test(s)
-
-    ||
-
-    /^\d{1,2}[- ](?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)$/i
-      .test(s)
-
-  );
-
-}
-
-
-function fmtDate(v,context){
-
-  const s=clean(v);
+  if(!s)return null;
 
   let m=s.match(
     /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/
@@ -213,16 +139,15 @@ function fmtDate(v,context){
 
   if(m){
 
-    return (
-      m[1].padStart(2,'0')+
-      '-' +
-      m[2].padStart(2,'0')+
-      '-' +
-      m[3]
-    );
+    return {
+      day:Number(m[1]),
+      month:Number(m[2]),
+      year:m[3].length===2
+        ? 2000+Number(m[3])
+        : Number(m[3])
+    };
 
   }
-
 
   m=s.match(
     /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/
@@ -230,16 +155,13 @@ function fmtDate(v,context){
 
   if(m){
 
-    return (
-      m[3].padStart(2,'0')+
-      '-' +
-      m[2].padStart(2,'0')+
-      '-' +
-      m[1]
-    );
+    return {
+      day:Number(m[3]),
+      month:Number(m[2]),
+      year:Number(m[1])
+    };
 
   }
-
 
   m=s.match(
     /^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/
@@ -247,16 +169,13 @@ function fmtDate(v,context){
 
   if(m){
 
-    return (
-      m[3].padStart(2,'0')+
-      '-' +
-      String(Number(m[2])+1).padStart(2,'0')+
-      '-' +
-      m[1]
-    );
+    return {
+      day:Number(m[3]),
+      month:Number(m[2])+1,
+      year:Number(m[1])
+    };
 
   }
-
 
   m=s.match(
     /^(\d{1,2})[- ]([A-Za-z]+)$/
@@ -269,20 +188,41 @@ function fmtDate(v,context){
 
     if(mo){
 
-      return (
-        m[1].padStart(2,'0')+
-        '-' +
-        String(mo).padStart(2,'0')+
-        '-' +
-        context.year
-      );
+      return {
+        day:Number(m[1]),
+        month:mo,
+        year:context.year
+      };
 
     }
 
   }
 
+  return null;
+}
 
-  return s;
+
+function fmtDate(d){
+
+  if(!d)return '';
+
+  return (
+    String(d.day).padStart(2,'0')+
+    '-' +
+    String(d.month).padStart(2,'0')+
+    '-' +
+    d.year
+  );
+}
+
+
+function dateSort(d){
+
+  return (
+    d.year*10000+
+    d.month*100+
+    d.day
+  );
 
 }
 
@@ -291,106 +231,100 @@ function fmtDate(v,context){
    ACTIVITY
 ========================= */
 
-function act(v){
+function activityName(v){
 
   const s=clean(v);
-
-  if(!s)return '';
-
   const u=s.toUpperCase();
 
+  if(!s)return '';
 
   if(
     u==='DAY' ||
     u==='D' ||
     s==='दिन'
   ){
-
     return 'दिन';
-
   }
-
 
   if(
     u==='NIGHT' ||
     u==='N' ||
     s==='रात'
   ){
-
     return 'रात';
-
   }
-
 
   if(
     u==='BEAS' ||
     s==='ब्यास'
   ){
-
     return 'ब्यास';
-
   }
-
-
-  if(
-    u.includes('LIPAI') ||
-    s.includes('लिपाई')
-  ){
-
-    return 'लिपाई';
-
-  }
-
 
   if(
     u.includes('SAHARANPUR') ||
     s.includes('सहारनपुर')
   ){
-
     return 'सहारनपुर';
-
   }
 
-
-  if(u.includes('BANGALORE')){
-
+  if(
+    u.includes('BANGALORE') ||
+    s.includes('बैंगलोर')
+  ){
     return 'बैंगलोर';
-
   }
 
-
-  if(u.includes('PORT BLAIR')){
-
+  if(
+    u.includes('PORT BLAIR') ||
+    s.includes('पोर्ट ब्लेयर')
+  ){
     return 'पोर्ट ब्लेयर';
-
   }
 
-
-  if(u.includes('HUZUR DARSHAN')){
-
+  if(
+    u.includes('HUZUR DARSHAN') ||
+    s.includes('हुजूर दर्शन')
+  ){
     return 'हुजूर दर्शन';
-
   }
 
+  if(
+    u.includes('LIPAI') ||
+    s.includes('लिपाई')
+  ){
+    return 'लिपाई';
+  }
 
   return s;
-
 }
 
 
 /* =========================
-   BADGE FIND
+   BADGE SEARCH
 ========================= */
 
 function findBadge(rows,id){
 
   const target=norm(id);
 
-  for(
-    let r=0;
-    r<rows.length;
-    r++
-  ){
+  /* पहले Column A में खोजें */
+  for(let r=0;r<rows.length;r++){
+
+    if(
+      norm(rows[r]?.[0])===target
+    ){
+
+      return {
+        row:r
+      };
+
+    }
+
+  }
+
+  /* जरूरत पड़े तो पूरे sheet में खोजें */
+  for(let r=0;r<rows.length;r++){
 
     for(
       let c=0;
@@ -403,8 +337,7 @@ function findBadge(rows,id){
       ){
 
         return {
-          r:r,
-          c:c
+          row:r
         };
 
       }
@@ -414,243 +347,59 @@ function findBadge(rows,id){
   }
 
   return null;
-
 }
 
 
 /* =========================
-   MAIN ACTIVITY
+   MAKE ATTENDANCE
 ========================= */
 
-function isMainActivity(v){
+function makeRecord(rows,info){
 
-  const s=clean(v).toUpperCase();
+  const badgeRow=info.row;
 
-  return (
+  const personRow=
+    rows[badgeRow]||[];
 
-    s==='DAY' ||
-    s==='D' ||
-    s==='NIGHT' ||
-    s==='N' ||
-    s==='BEAS' ||
-    s==='ब्यास' ||
-    s==='दिन' ||
-    s==='रात'
+  const monthRow=
+    rows[0]||[];
 
-  );
-
-}
-
-
-/* =========================
-   FIND DATE ROW
-========================= */
-
-function findDateRow(rows,br){
-
-  let best=-1;
-  let bestScore=-1;
-
-
-  for(
-    let r=0;
-    r<br;
-    r++
-  ){
-
-    let dateCount=0;
-    let activityCount=0;
-
-
-    for(
-      let c=0;
-      c<(rows[r]||[]).length;
-      c++
-    ){
-
-      if(
-        isDate(rows[r][c])
-      ){
-
-        dateCount++;
-
-      }
-
-
-      if(
-        isMainActivity(
-          rows[r+1]?.[c]
-        )
-      ){
-
-        activityCount++;
-
-      }
-
-    }
-
-
-    const score=
-      (dateCount*10)+
-      activityCount;
-
-
-    if(
-      dateCount>0 &&
-      score>bestScore
-    ){
-
-      bestScore=score;
-      best=r;
-
-    }
-
-  }
-
-
-  return best;
-
-}
-
-
-/* =========================
-   FIND MONTH ROW
-========================= */
-
-function findMonthRow(rows,dr){
-
-  let best=-1;
-  let bestCount=0;
-
-
-  for(
-    let r=0;
-    r<dr;
-    r++
-  ){
-
-    let count=0;
-
-
-    for(
-      let c=0;
-      c<(rows[r]||[]).length;
-      c++
-    ){
-
-      if(
-        isMonthYear(rows[r][c])
-      ){
-
-        count++;
-
-      }
-
-    }
-
-
-    if(count>bestCount){
-
-      bestCount=count;
-      best=r;
-
-    }
-
-  }
-
-
-  return best;
-
-}
-
-
-/* =========================
-   MAKE RECORD
-========================= */
-
-function make(rows,info){
-
-  const br=info.r;
-
-  const brow=
-    rows[br]||[];
-
-
-  const dr=
-    findDateRow(
-      rows,
-      br
-    );
-
-
-  if(dr<0){
-
-    return {
-
-      name:clean(brow[1]),
-
-      parent:clean(brow[2]),
-
-      out:[]
-
-    };
-
-  }
-
-
-  /*
-    Date Row
-    ↓
-    Activity Row
-    ↓
-    Special Activity Row
-    ↓
-    Sewadar Row
-  */
+  const dateRow=
+    rows[1]||[];
 
   const activityRow=
-    dr+1;
-
-  const specialRow=
-    dr+2;
-
-
-  const mr=
-    findMonthRow(
-      rows,
-      dr
-    );
-
-
-  let monthContext=null;
-
-  let currentDate='';
+    rows[2]||[];
 
 
   const name=
-    clean(brow[1]);
+    clean(personRow[1]);
 
   const parent=
-    clean(brow[2]);
+    clean(personRow[2]);
 
 
-  const out=[];
+  const result=[];
+
+  let monthContext=null;
+
+  let currentDate=null;
+
+
+  /*
+    Sheet structure:
+
+    Row 1 = Month
+    Row 2 = Date
+    Row 3 = Activity
+    Row 4+ = Sewadar
+  */
 
 
   const max=Math.max(
-
-    (rows[dr]||[]).length,
-
-    (rows[activityRow]||[]).length,
-
-    (rows[specialRow]||[]).length,
-
-    brow.length,
-
-    mr>=0
-      ? (rows[mr]||[]).length
-      : 0
-
+    monthRow.length,
+    dateRow.length,
+    activityRow.length,
+    personRow.length
   );
 
 
@@ -660,167 +409,183 @@ function make(rows,info){
     c++
   ){
 
+    /* Month */
+    const m=
+      monthYear(
+        monthRow[c]
+      );
 
-    /* Month / Year */
-
-    if(
-
-      mr>=0 &&
-
-      isMonthYear(
-        rows[mr]?.[c]
-      )
-
-    ){
-
-      monthContext=
-        monthYear(
-          rows[mr][c]
-        );
-
+    if(m){
+      monthContext=m;
     }
 
 
     /* Date */
-
-    const dateCell=
-      clean(
-        rows[dr]?.[c] ?? ''
+    const d=
+      parseDate(
+        dateRow[c],
+        monthContext
       );
 
+    if(d){
+      currentDate=d;
+    }
 
-    if(
-      isDate(dateCell)
-    ){
 
-      currentDate=
-        fmtDate(
-          dateCell,
-          monthContext
-        );
+    /*
+      A = Badge
+      B = Name
+      C = F/H
+      D = blank
+      E onward = Attendance
+    */
 
+    if(c<4){
+      continue;
     }
 
 
     if(!currentDate){
-
       continue;
-
     }
 
 
-    /* Attendance */
-
     const raw=
-      clean(
-        brow[c] ?? ''
-      );
+      clean(personRow[c]);
 
 
     if(raw===''){
-
       continue;
-
     }
 
 
-    const n=
+    /*
+      Attendance can be:
+      1
+      2
+      3
+      etc.
+    */
+
+    const count=
       Number(
         raw.replace(/,/g,'')
       );
 
 
     if(
-      !Number.isFinite(n) ||
-      n<1
+      !Number.isFinite(count) ||
+      count<=0
     ){
-
       continue;
+    }
+
+
+    /*
+      IMPORTANT:
+      Activity उसी column से आएगी
+    */
+
+    const rawActivity=
+      activityRow[c] ?? '';
+
+
+    let activity=
+      activityName(
+        rawActivity
+      );
+
+
+    /*
+      अगर Activity खाली है,
+      attendance फिर भी नहीं छोड़ेंगे
+    */
+
+    if(!activity){
+
+      activity='अन्य';
 
     }
 
 
-    /* Main Activity */
+    /*
+      अगर special activity में
+      LIPAI है और ऊपर DAY/NIGHT है
+      तो दोनों जोड़ें
+    */
 
-    const main=
-      act(
-        rows[activityRow]?.[c] ?? ''
-      );
-
-
-    /* Special Activity */
+    const rawSpecial=
+      rows[3]?.[c] ?? '';
 
     const special=
-      act(
-        rows[specialRow]?.[c] ?? ''
-      );
+      activityName(rawSpecial);
 
-
-    let finalActivity='';
-
-
-    /* दोनों */
 
     if(
-      main &&
-      special
+      special &&
+      special!=='दिन' &&
+      special!=='रात' &&
+      special!=='ब्यास' &&
+      special!==activity
     ){
 
-      finalActivity=
-        main+' '+special;
+      if(
+        (activity==='दिन' ||
+         activity==='रात') &&
+        special==='लिपाई'
+      ){
+
+        activity=
+          activity+' '+special;
+
+      }
 
     }
 
 
-    /* केवल Main */
+    result.push({
 
-    else if(main){
+      date:fmtDate(currentDate),
 
-      finalActivity=
-        main;
+      sort:dateSort(currentDate),
 
-    }
+      activity:activity,
 
+      count:count,
 
-    /* केवल Special */
-
-    else if(special){
-
-      finalActivity=
-        special;
-
-    }
-
-
-    /* Activity नहीं मिली */
-
-    else{
-
-      continue;
-
-    }
-
-
-    out.push({
-
-      date:currentDate,
-
-      activity:finalActivity,
-
-      count:n
+      column:c
 
     });
 
   }
 
 
+  /*
+    Date के हिसाब से क्रम
+  */
+
+  result.sort((a,b)=>{
+
+    if(a.sort!==b.sort){
+
+      return a.sort-b.sort;
+
+    }
+
+    return a.column-b.column;
+
+  });
+
+
   return {
+
+    badge:clean(personRow[0]) || BADGE_ID,
 
     name:name,
 
     parent:parent,
 
-    out:out
+    out:result
 
   };
 
@@ -828,25 +593,17 @@ function make(rows,info){
 
 
 /* =========================
-   LOAD GOOGLE SHEET
+   LOAD SHEET
 ========================= */
 
 async function load(){
 
   const url=
-
     'https://docs.google.com/spreadsheets/d/' +
-
     SHEET_ID +
-
     '/gviz/tq?tqx=out:json&sheet=' +
-
-    encodeURIComponent(
-      SHEET_NAME
-    ) +
-
+    encodeURIComponent(SHEET_NAME) +
     '&t=' +
-
     Date.now();
 
 
@@ -894,7 +651,7 @@ async function load(){
 
 
 /* =========================
-   SHOW RESULT
+   RESULT
 ========================= */
 
 function resultPage(rec){
@@ -974,7 +731,7 @@ function resultPage(rec){
 
 
 /* =========================
-   LOAD LOGO + WATERMARK
+   LOGO + WATERMARK
 ========================= */
 
 async function loadBranding(){
@@ -999,45 +756,41 @@ async function loadBranding(){
       await response.text();
 
 
-    const match=
+    let match=
       html.match(
-        /data:image\/png;base64,[A-Za-z0-9+/=]+/
+        /<img[^>]+src=["'](data:image\/png;base64,[A-Za-z0-9+/=]+)["']/i
       );
 
 
     if(!match){
-      return;
+
+      const fallback=
+        html.match(
+          /data:image\/png;base64,[A-Za-z0-9+/=]+/i
+        );
+
+      if(!fallback){
+        return;
+      }
+
+      match=[
+        null,
+        fallback[0]
+      ];
+
     }
 
 
     const image=
-      match[0];
+      match[1];
 
 
-    const logo=
-      $('topLogo');
+    $('topLogo').src=
+      image;
 
 
-    if(logo){
-
-      logo.src=
-        image;
-
-    }
-
-
-    const watermark=
-      $('watermark');
-
-
-    if(watermark){
-
-      watermark.style.backgroundImage=
-        'url("' +
-        image +
-        '")';
-
-    }
+    $('watermark').style.backgroundImage=
+      'url("'+image+'")';
 
   }
 
@@ -1054,7 +807,7 @@ async function loadBranding(){
 
 
 /* =========================
-   BACK BUTTON
+   BACK
 ========================= */
 
 $('backBtn').onclick=function(){
@@ -1070,17 +823,7 @@ $('backBtn').onclick=function(){
 
 async function boot(){
 
-  loadBranding();
-
-
   if(!BADGE_ID){
-
-    $('badge').textContent='—';
-
-    $('personName').textContent='';
-
-    $('parentName').textContent='';
-
 
     $('status').textContent=
       'Badge ID नहीं मिला।';
@@ -1091,6 +834,9 @@ async function boot(){
     return;
 
   }
+
+
+  loadBranding();
 
 
   try{
@@ -1120,20 +866,15 @@ async function boot(){
 
 
     const rec=
-      make(
+      makeRecord(
         rows,
         info
       );
 
 
-    rec.badge=
-      BADGE_ID;
-
-
     resultPage(rec);
 
   }
-
 
   catch(error){
 
@@ -1154,16 +895,8 @@ async function boot(){
 
 
 boot();
-
 </script>
-  
-    
 </body>
 </html>
-
-
-
-
-
-
-
+  
+  
