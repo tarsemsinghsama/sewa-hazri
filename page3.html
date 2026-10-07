@@ -338,9 +338,10 @@ function findActivityRow(rows,dateRow,badgeRow){
 }
 
   
-/* function makeRecords(rows,badgeRow) */
+/* function makeRecords */
   
   
+
 function makeRecords(rows,badgeRow){
 
   const dateRow=findDateRow(rows,badgeRow);
@@ -351,43 +352,63 @@ function makeRecords(rows,badgeRow){
 
   /*
     =========================
-    DATE ROW
+    ACTIVITY ROW FIND
     =========================
-    
-    Date उसी तरह dateRow से ली जाएगी
-    जिस तरह पुराने working code में आ रही थी।
+
+    Activity row को fixed rows[2] या dateRow+1
+    नहीं माना जा रहा।
+
+    जिस row में DAY / NIGHT / BEAS आदि
+    सबसे ज्यादा मिलेंगे, वही Activity row होगी।
   */
 
-  /*
-    =========================
-    ACTIVITY ROW
-    =========================
-    
-    Google Sheet की 3rd row
-    JavaScript में rows[2] होती है।
+  const activityRow=findActivityRow(
+    rows,
+    dateRow,
+    badgeRow
+  );
 
-    इसलिए Activity भी उसी column से ली जाएगी
-    जिस column से Date ली जा रही है।
-  */
+  if(activityRow<0){
 
-  const activityRow=rows[dateRow+1]||[];
+    throw Error(
+      'Activity वाली row नहीं मिली'
+    );
+
+  }
 
   const badgeRowData=rows[badgeRow]||[];
 
   const cols=Math.max(
+
     badgeRowData.length,
+
     rows[dateRow]?.length||0,
-    activityRow.length,
+
+    rows[activityRow]?.length||0,
+
     ...rows.map(r=>r.length)
+
   );
 
-  const monthMap=buildMonthMap(rows,dateRow,cols);
+  const monthMap=buildMonthMap(
+    rows,
+    dateRow,
+    cols
+  );
 
   let currentMonth=null;
 
   const result=[];
 
+
+  /*
+    =========================
+    COLUMN BY COLUMN
+    =========================
+  */
+
   for(let c=0;c<cols;c++){
+
 
     /*
       =========================
@@ -397,13 +418,18 @@ function makeRecords(rows,badgeRow){
 
     for(let r=0;r<dateRow;r++){
 
-      const mh=monthHeader(rows[r]?.[c]);
+      const mh=monthHeader(
+        rows[r]?.[c]
+      );
 
       if(mh){
+
         currentMonth=mh;
+
       }
 
     }
+
 
     /*
       =========================
@@ -411,39 +437,64 @@ function makeRecords(rows,badgeRow){
       =========================
     */
 
-    const dateValue=rows[dateRow]?.[c]??'';
+    const dateValue=
+      rows[dateRow]?.[c]??'';
+
 
     if(!isShortDate(dateValue)){
+
       continue;
+
     }
 
-    const dateText=formatDateCell(
-      dateValue,
-      monthMap[c]||currentMonth
-    );
+
+    const dateText=
+      formatDateCell(
+        dateValue,
+        monthMap[c]||currentMonth
+      );
+
 
     if(!dateText){
+
       continue;
+
     }
+
 
     /*
       =========================
       ACTIVITY
       =========================
 
-      Activity सीधे rows[2] से ली जाएगी।
+      इसी column से Activity ली जाएगी।
 
       उदाहरण:
 
-      rows[2][4] = DAY
-      rows[2][5] = NIGHT
-      rows[2][6] = DAY
-      rows[2][7] = BEAS
+      Date row:
+      E = 07-Oct
+      F = 07-Oct
+      G = 11-Oct
+
+      Activity row:
+      E = DAY
+      F = NIGHT
+      G = DAY
+
+      Result:
+
+      07-10-2025 दिन
+      07-10-2025 रात
+      11-10-2025 दिन
     */
 
-    const activityValue=activityRow[c]??'';
+    const activityValue=
+      rows[activityRow]?.[c]??'';
 
-    const act=activity(activityValue);
+
+    const act=
+      activity(activityValue);
+
 
     /*
       =========================
@@ -451,29 +502,40 @@ function makeRecords(rows,badgeRow){
       =========================
     */
 
-    const raw=badgeRowData[c]??'';
+    const raw=
+      badgeRowData[c]??'';
 
-    const number=attendanceNumber(raw);
+
+    const number=
+      attendanceNumber(raw);
+
 
     /*
       खाली attendance को नहीं दिखाना
     */
 
     if(number===null){
+
       continue;
+
     }
+
 
     /*
       =========================
-      DATE + ACTIVITY
+      FINAL LABEL
       =========================
     */
 
     let label=dateText;
 
+
     if(act){
+
       label+=' '+act;
+
     }
+
 
     /*
       =========================
@@ -482,16 +544,24 @@ function makeRecords(rows,badgeRow){
     */
 
     result.push({
+
       date:dateText,
+
       activity:act,
+
       value:number,
+
       label:label
+
     });
 
   }
 
+
   return result;
+
 }
+    
 
     
   /* इससे ऊपर make function है */
