@@ -279,81 +279,123 @@ function buildMonthMap(rows,dateRow,cols){
   return map;
 }
 
+
 function makeRecords(rows,badgeRow){
+
   const dateRow=findDateRow(rows,badgeRow);
 
-const activityRow = rows[2];
-  
   if(dateRow<0){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
 
-  const activityRow=dateRow+1;
-  
- //* const fixedActivityRow=activeRows+2;
-  
- const fixedActivityRow=rows[3];
-  
+  /*
+    Date:
+    Date वाली row से data लिया जाएगा।
+  */
+
   const badgeRowData=rows[badgeRow]||[];
+
+  /*
+    Activity:
+    Google Sheet की 3rd row = rows[2]
+    उसी column से Activity ली जाएगी।
+  */
+
+  const activityData=rows[2]||[];
 
   const cols=Math.max(
     badgeRowData.length,
     rows[dateRow]?.length||0,
-    rows[activityRow]?.length||0,
+    activityData.length,
     ...rows.map(r=>r.length)
   );
 
   const monthMap=buildMonthMap(rows,dateRow,cols);
 
   let currentMonth=null;
+
   const result=[];
 
   for(let c=0;c<cols;c++){
 
     /*
-      अगर किसी अलग month header को उसी column पर पाया गया हो,
-      तो आगे के columns के लिए उसे carry करें।
+      Month header को carry करना
     */
+
     for(let r=0;r<dateRow;r++){
+
       const mh=monthHeader(rows[r]?.[c]);
-      if(mh)currentMonth=mh;
+
+      if(mh){
+        currentMonth=mh;
+      }
+
     }
+
+    /*
+      =========================
+      DATE
+      =========================
+    */
 
     const dateValue=rows[dateRow]?.[c]??'';
 
-    if(isShortDate(dateValue)){
-      const formatted=formatDateCell(
-        dateValue,
-        monthMap[c]||currentMonth
-      );
-
-      if(formatted){
-        currentMonth=monthMap[c]||currentMonth;
-      }
+    if(!isShortDate(dateValue)){
+      continue;
     }
-
-    if(!isShortDate(dateValue))continue;
 
     const dateText=formatDateCell(
       dateValue,
       monthMap[c]||currentMonth
     );
 
-    if(!dateText)continue;
+    if(!dateText){
+      continue;
+    }
 
-    const act=activity(rows[activityRow]?.[c]??'');
+    /*
+      =========================
+      ACTIVITY
+      =========================
 
-const act=activity(activityRow[c]??'');
-    
-const fixedAct=activity(fixedActivityRow[c]??'');
-    
+      सीधे 3rd row से:
+      rows[2][c]
+
+      उदाहरण:
+
+      rows[2][4] = DAY
+      rows[2][5] = NIGHT
+      rows[2][6] = DAY
+      rows[2][7] = BEAS
+    */
+
+    const activityValue=activityData[c]??'';
+
+    const act=activity(activityValue);
+
+    /*
+      =========================
+      ATTENDANCE
+      =========================
+    */
+
     const raw=badgeRowData[c]??'';
+
     const number=attendanceNumber(raw);
 
     /*
-      खाली cell या 0 को तारीख़वार सूची में नहीं दिखाना है।
+      खाली cell या 0 को नहीं दिखाना
     */
-    if(number===null)continue;
+
+    if(number===null){
+      continue;
+    }
+
+    /*
+      =========================
+      FINAL LABEL
+      =========================
+    */
 
     let label=dateText;
 
@@ -361,79 +403,24 @@ const fixedAct=activity(fixedActivityRow[c]??'');
       label+=' '+act;
     }
 
-if(fixedAct && fixedAct!==act){
-  label+=' '+fixedAct;
-}
-    
+    /*
+      Record तैयार
+    */
+
     result.push({
       date:dateText,
       activity:act,
       value:number,
       label:label
     });
+
   }
 
   return result;
 }
+    
+    
 
-function esc(v){
-  return String(v??'')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
-}
-
-function show(items){
-  const status=document.getElementById('status');
-  const box=document.getElementById('result');
-
-  if(!items.length){
-    status.textContent='डेटा मिल गया, लेकिन इस Badge ID की कोई तारीख़वार हाज़री नहीं मिली।';
-    box.innerHTML='<div class="empty">इस Badge ID की तारीख़वार हाज़री नहीं मिली।</div>';
-    return;
-  }
-
-  status.textContent='कुल '+items.length+' तारीख़/गतिविधियाँ मिलीं।';
-
-  let html=
-    '<div class="table-wrap">'+
-    '<table>'+
-    '<thead><tr>'+
-    '<th>तारीख़ / गतिविधि</th>'+
-    '<th>हाज़री</th>'+
-    '</tr></thead><tbody>';
-
-  items.forEach(item=>{
-    html+=
-      '<tr>'+
-      '<td>'+esc(item.label)+'</td>'+
-      '<td>'+esc(item.value)+'</td>'+
-      '</tr>';
-  });
-
-  html+='</tbody></table></div>';
-
-  box.innerHTML=html;
-}
-
-async function logo(){
-  try{
-    const r=await fetch('./index.html',{cache:'no-store'});
-    if(!r.ok)return;
-
-    const t=await r.text();
-    const m=t.match(/data:image\/png;base64,[A-Za-z0-9+/=]+/i);
-
-    if(m){
-      document.getElementById('topLogo').src=m[0];
-      document.getElementById('watermarkLogo').src=m[0];
-    }
-  }catch(e){
-    console.error(e);
-  }
-}
 
 async function load(){
   const status=document.getElementById('status');
