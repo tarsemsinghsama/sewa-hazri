@@ -279,6 +279,7 @@ function buildMonthMap(rows,dateRow,cols){
   return map;
 }
 
+*/ इससे नीचे चेंज करना है
 
 function makeRecords(rows,badgeRow){
 
@@ -288,19 +289,12 @@ function makeRecords(rows,badgeRow){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
 
-  /*
-    Date:
-    Date वाली row से data लिया जाएगा।
-  */
-
   const badgeRowData=rows[badgeRow]||[];
 
   /*
-    Activity:
-    Google Sheet की 3rd row = rows[2]
-    उसी column से Activity ली जाएगी।
+    3rd row = rows[2]
+    इसी row से Activity ली जाएगी।
   */
-
   const activityData=rows[2]||[];
 
   const cols=Math.max(
@@ -313,15 +307,13 @@ function makeRecords(rows,badgeRow){
   const monthMap=buildMonthMap(rows,dateRow,cols);
 
   let currentMonth=null;
-
   const result=[];
 
   for(let c=0;c<cols;c++){
 
     /*
-      Month header को carry करना
+      Month header
     */
-
     for(let r=0;r<dateRow;r++){
 
       const mh=monthHeader(rows[r]?.[c]);
@@ -358,15 +350,8 @@ function makeRecords(rows,badgeRow){
       ACTIVITY
       =========================
 
-      सीधे 3rd row से:
-      rows[2][c]
-
-      उदाहरण:
-
-      rows[2][4] = DAY
-      rows[2][5] = NIGHT
-      rows[2][6] = DAY
-      rows[2][7] = BEAS
+      सीधे Google Sheet की 3rd row
+      rows[2] से Activity
     */
 
     const activityValue=activityData[c]??'';
@@ -382,10 +367,6 @@ function makeRecords(rows,badgeRow){
     const raw=badgeRowData[c]??'';
 
     const number=attendanceNumber(raw);
-
-    /*
-      खाली cell या 0 को नहीं दिखाना
-    */
 
     if(number===null){
       continue;
@@ -403,10 +384,6 @@ function makeRecords(rows,badgeRow){
       label+=' '+act;
     }
 
-    /*
-      Record तैयार
-    */
-
     result.push({
       date:dateText,
       activity:act,
@@ -418,21 +395,135 @@ function makeRecords(rows,badgeRow){
 
   return result;
 }
-    
-    
 
+
+/* =========================
+   HTML ESCAPE
+   ========================= */
+
+function esc(v){
+  return String(v??'')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+
+/* =========================
+   RESULT SHOW
+   ========================= */
+
+function show(items){
+
+  const status=document.getElementById('status');
+  const box=document.getElementById('result');
+
+  if(!items.length){
+
+    status.textContent=
+      'डेटा मिल गया, लेकिन इस Badge ID की कोई तारीख़वार हाज़री नहीं मिली।';
+
+    box.innerHTML=
+      '<div class="empty">'+
+      'इस Badge ID की तारीख़वार हाज़री नहीं मिली।'+
+      '</div>';
+
+    return;
+  }
+
+  status.textContent=
+    'कुल '+items.length+' तारीख़/गतिविधियाँ मिलीं।';
+
+  let html=
+    '<div class="table-wrap">'+
+    '<table>'+
+    '<thead><tr>'+
+    '<th>तारीख़ / गतिविधि</th>'+
+    '<th>हाज़री</th>'+
+    '</tr></thead>'+
+    '<tbody>';
+
+  items.forEach(item=>{
+
+    html+=
+      '<tr>'+
+      '<td>'+esc(item.label)+'</td>'+
+      '<td>'+esc(item.value)+'</td>'+
+      '</tr>';
+
+  });
+
+  html+=
+    '</tbody>'+
+    '</table>'+
+    '</div>';
+
+  box.innerHTML=html;
+}
+
+
+/* =========================
+   LOGO
+   ========================= */
+
+async function logo(){
+
+  try{
+
+    const r=await fetch('./index.html',{
+      cache:'no-store'
+    });
+
+    if(!r.ok)return;
+
+    const t=await r.text();
+
+    const m=t.match(
+      /data:image\/png;base64,[A-Za-z0-9+/=]+/i
+    );
+
+    if(m){
+
+      document.getElementById('topLogo').src=m[0];
+
+      document.getElementById('watermarkLogo').src=m[0];
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+/* =========================
+   LOAD GOOGLE SHEET
+   ========================= */
 
 async function load(){
+
   const status=document.getElementById('status');
   const box=document.getElementById('result');
 
   if(!BADGE_ID){
+
     status.textContent='Badge ID नहीं मिली।';
-    box.innerHTML='<div class="error">कृपया 2nd Page से “तारीख़वार हाज़री” खोलें।</div>';
+
+    box.innerHTML=
+      '<div class="error">'+
+      'कृपया 2nd Page से “तारीख़वार हाज़री” खोलें।'+
+      '</div>';
+
     return;
   }
 
   try{
+
     const url=
       'https://docs.google.com/spreadsheets/d/'+
       SHEET_ID+
@@ -440,34 +531,57 @@ async function load(){
       encodeURIComponent(SHEET_NAME)+
       '&t='+Date.now();
 
-    const response=await fetch(url,{cache:'no-store'});
+    const response=await fetch(url,{
+      cache:'no-store'
+    });
 
     if(!response.ok){
-      throw Error('Google Sheet खुल नहीं रही');
+
+      throw Error(
+        'Google Sheet खुल नहीं रही'
+      );
+
     }
 
-    const rows=parseGViz(await response.text());
+    const rows=parseGViz(
+      await response.text()
+    );
 
-    const badgeRow=findBadgeRow(rows,BADGE_ID);
+    const badgeRow=findBadgeRow(
+      rows,
+      BADGE_ID
+    );
 
     if(badgeRow<0){
-      status.textContent='Badge ID नहीं मिली।';
+
+      status.textContent=
+        'Badge ID नहीं मिली।';
+
       box.innerHTML=
         '<div class="error">'+
-        'Google Sheet <b>'+esc(SHEET_NAME)+'</b> में '+
-        '<b>'+esc(BADGE_ID)+'</b> नहीं मिली।'+
+        'Google Sheet <b>'+
+        esc(SHEET_NAME)+
+        '</b> में <b>'+
+        esc(BADGE_ID)+
+        '</b> नहीं मिली.'+
         '</div>';
+
       return;
     }
 
-    const items=makeRecords(rows,badgeRow);
+    const items=makeRecords(
+      rows,
+      badgeRow
+    );
 
     show(items);
 
   }catch(e){
+
     console.error(e);
 
-    status.textContent='डेटा लोड नहीं हो सका.';
+    status.textContent=
+      'डेटा लोड नहीं हो सका.';
 
     box.innerHTML=
       '<div class="error">'+
@@ -477,13 +591,23 @@ async function load(){
       esc(SHEET_NAME)+
       ' tab उपलब्ध होना चाहिए।'+
       '<br><br>'+
-      'Error: '+esc(e.message||e)+
+      'Error: '+
+      esc(e.message||e)+
       '</div>';
+
   }
+
 }
+
+
+/* =========================
+   START
+   ========================= */
 
 logo();
 load();
+
 </script>
 </body>
 </html>
+            
