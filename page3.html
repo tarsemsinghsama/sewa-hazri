@@ -276,7 +276,15 @@ function activity(v){
   return s;
 }
 
-function makeRecords(rows,badgeRow){
+
+
+  
+//*   function makeRecords(rows,badgeRow)  *//
+
+  
+
+
+function makeRecords(rows,badgeRow,activityValues,monthValues){
 
   const dateRow=findDateRow(rows,badgeRow);
 
@@ -284,65 +292,76 @@ function makeRecords(rows,badgeRow){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
 
-  const activityRow=dateRow+1;
-  
-alert(
-/*  'ROW 0 = '+JSON.stringify(rows[0])+  */
-
-  '\n\nROW 1 = '+JSON.stringify(rows[1])+
-
-  '\n\nROW 2 = '+JSON.stringify(rows[2])+
-
-  '\n\nROW 3 = '+JSON.stringify(rows[3])+
-
-  '\n\nROW 4 = '+JSON.stringify(rows[4])+
-
-  '\n\nROW 5 = '+JSON.stringify(rows[5])
-);
-  
   const badgeData=rows[badgeRow]||[];
 
   const cols=Math.max(
     rows[dateRow]?.length||0,
-    rows[activityRow]?.length||0,
     badgeData.length,
+    activityValues.length,
+    monthValues.length,
     ...rows.map(r=>r.length)
   );
-
-  const monthMap=buildMonthMap(rows,dateRow,cols);
 
   let currentMonth=null;
   const result=[];
 
   for(let c=0;c<cols;c++){
 
-    for(let r=0;r<dateRow;r++){
-      const mh=monthHeader(rows[r]?.[c]);
-      if(mh)currentMonth=mh;
+    // Month / Year
+    const mh=monthHeader(monthValues[c]);
+
+    if(mh){
+      currentMonth=mh;
     }
 
+    // Date
     const dateValue=rows[dateRow]?.[c]??'';
 
-    if(!isShortDate(dateValue))continue;
+    if(!isShortDate(dateValue)) continue;
 
     const dateText=formatDateCell(
       dateValue,
-      monthMap[c]||currentMonth
+      currentMonth
     );
 
-    if(!dateText)continue;
+    if(!dateText) continue;
 
-    const activityValue=rows[activityRow]?.[c]??'';
-    const act=activity(activityValue);
+    // Activity अलग Google query से आएगी
+    const rawActivity=clean(activityValues[c]??'');
 
+    const u=rawActivity.toUpperCase();
+
+    const validActivity =
+      u==='DAY' ||
+      u==='D' ||
+      u==='NIGHT' ||
+      u==='N' ||
+      u==='BEAS' ||
+      u==='B' ||
+      u.includes('LIPAI') ||
+      u.includes('LIPAY') ||
+      rawActivity.includes('लिपाई') ||
+      u.includes('SAHARANPUR') ||
+      rawActivity.includes('सहारनपुर') ||
+      rawActivity==='दिन' ||
+      rawActivity==='रात' ||
+      rawActivity==='ब्यास';
+
+    const act=validActivity
+      ? activity(rawActivity)
+      : '';
+
+    // Attendance
     const raw=badgeData[c]??'';
     const number=attendanceNumber(raw);
 
-    if(number===null)continue;
+    if(number===null) continue;
 
     let label=dateText;
 
-    if(act)label+=' '+act;
+    if(act){
+      label+=' '+act;
+    }
 
     result.push({
       date:dateText,
@@ -354,6 +373,8 @@ alert(
 
   return result;
 }
+
+  
 
 function esc(v){
   return String(v??'')
