@@ -456,34 +456,110 @@ async function load(){
       IMPORTANT:
       headers=0 से Sheet की पहली row भी data के रूप में मिलेगी।
     */
-    const url=
-      'https://docs.google.com/spreadsheets/d/'+
-      SHEET_ID+
-      '/gviz/tq?tqx=out:json&headers=0&sheet='+
-      encodeURIComponent(SHEET_NAME)+
-      '&t='+Date.now();
 
-    const response=await fetch(url,{cache:'no-store'});
+    
+   /*     const url    */
 
-    if(!response.ok){
-      throw Error('Google Sheet खुल नहीं रही');
-    }
 
-    const rows=parseGViz(await response.text());
+      
+      
+const baseUrl=
+  'https://docs.google.com/spreadsheets/d/'+
+  SHEET_ID+
+  '/gviz/tq';
 
-    const badgeRow=findBadgeRow(rows,BADGE_ID);
+const sheetParam=
+  '&sheet='+encodeURIComponent(SHEET_NAME);
 
-    if(badgeRow<0){
-      status.textContent='Badge ID नहीं मिली।';
+const cache='&t='+Date.now();
 
-      box.innerHTML=
-        '<div class="error">'+
-        'Google Sheet <b>'+esc(SHEET_NAME)+'</b> में '+
-        '<b>'+esc(BADGE_ID)+'</b> नहीं मिली.'+
-        '</div>';
 
-      return;
-    }
+// Main data
+const dataUrl=
+  baseUrl+
+  '?tqx=out:json&headers=0'+
+  sheetParam+
+  cache;
+
+
+// Activity row = Sheet की Row 3
+const activityUrl=
+  baseUrl+
+  '?tqx=out:json&headers=1'+
+  sheetParam+
+  '&range=A3:ZZ3'+
+  cache;
+
+
+// Month row = Sheet की Row 1
+const monthUrl=
+  baseUrl+
+  '?tqx=out:json&headers=1'+
+  sheetParam+
+  '&range=A1:ZZ1'+
+  cache;
+
+
+const [
+  dataResponse,
+  activityResponse,
+  monthResponse
+]=await Promise.all([
+  fetch(dataUrl,{cache:'no-store'}),
+  fetch(activityUrl,{cache:'no-store'}),
+  fetch(monthUrl,{cache:'no-store'})
+]);
+
+
+if(!dataResponse.ok){
+  throw Error('Google Sheet data load नहीं हुआ');
+}
+
+if(!activityResponse.ok){
+  throw Error('Activity row load नहीं हुई');
+}
+
+if(!monthResponse.ok){
+  throw Error('Month row load नहीं हुई');
+}
+
+
+const rows=
+  parseGViz(await dataResponse.text());
+
+const activityValues=
+  parseGVizHeaderRow(
+    await activityResponse.text()
+  );
+
+const monthValues=
+  parseGVizHeaderRow(
+    await monthResponse.text()
+  );
+
+
+const badgeRow=
+  findBadgeRow(rows,BADGE_ID);
+
+if(badgeRow<0){
+  throw Error('Badge No. नहीं मिला: '+BADGE_ID);
+}
+
+
+const items=
+  makeRecords(
+    rows,
+    badgeRow,
+    activityValues,
+    monthValues
+  );
+
+show(items);
+
+
+
+
+    
 
     const items=makeRecords(rows,badgeRow);
 
