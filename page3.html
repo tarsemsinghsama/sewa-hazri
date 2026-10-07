@@ -235,50 +235,7 @@ function findDateRow(rows,badgeRow){
   return best;
 }
 
-/*
-  Activity row को fixed rows[2] नहीं माना गया।
-  Date row के बाद वाली rows में DAY/NIGHT/BEAS आदि खोजे जाते हैं।
-*/
-function findActivityRow(rows,dateRow,badgeRow){
-  const known=[
-    'DAY','D','दिन',
-    'NIGHT','N','रात',
-    'BEAS','B','ब्यास','ब्यास सेवा',
-    'LIPAI','LIPAY','लिपाई',
-    'SAHARANPUR','सहारनपुर'
-  ];
 
-  let best=-1;
-  let bestScore=0;
-
-  const last=Math.min(badgeRow,dateRow+5);
-
-  for(let r=dateRow+1;r<=last;r++){
-    let score=0;
-
-    for(let c=0;c<rows[r].length;c++){
-      const s=clean(rows[r][c]);
-      const u=s.toUpperCase();
-
-      if(
-        known.includes(u) ||
-        u.includes('LIPAI') ||
-        s.includes('लिपाई') ||
-        u.includes('SAHARANPUR') ||
-        s.includes('सहारनपुर')
-      ){
-        score++;
-      }
-    }
-
-    if(score>bestScore){
-      bestScore=score;
-      best=r;
-    }
-  }
-
-  return best>=0?best:dateRow+1;
-}
 
 function buildMonthMap(rows,dateRow,cols){
   const map=new Array(cols).fill(null);
@@ -327,7 +284,7 @@ function makeRecords(rows,badgeRow){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
 
-  const activityRow=findActivityRow(rows,dateRow,badgeRow);
+  const activityRow=dateRow+1;
 
   const badgeData=rows[badgeRow]||[];
 
