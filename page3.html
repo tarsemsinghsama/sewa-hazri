@@ -94,30 +94,33 @@ function val(c){
   return '';
 }
 
-function parseGViz(text){
+//*  function parseGViz(text) *//
+
+
+  
+  
+function parseGVizHeaderRow(text){
   const a=text.indexOf('{');
   const b=text.lastIndexOf('}');
 
-  if(a<0 || b<0)throw Error('Google Sheet response नहीं मिला');
-
-  const json=JSON.parse(text.slice(a,b+1));
-  const table=json.table;
-
-  if(!table || !Array.isArray(table.rows)){
-    throw Error('Google Sheet में data नहीं मिला');
+  if(a<0 || b<0){
+    throw Error('Header row response नहीं मिला');
   }
 
-  const n=(table.cols||[]).length;
+  const json=JSON.parse(text.slice(a,b+1));
+  const cols=json.table?.cols || [];
 
-  return table.rows.map(row=>{
-    const out=new Array(n).fill('');
-    (row.c||[]).forEach((cell,i)=>{
-      if(i<n)out[i]=val(cell);
-    });
-    return out;
+  return cols.map(col=>{
+    const s=clean(col.label);
+    if(/^Col\d+$/i.test(s)) return '';
+    return s;
   });
 }
 
+
+  
+
+  
 function isShortDate(v){
   const s=clean(v);
 
