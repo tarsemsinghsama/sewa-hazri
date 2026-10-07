@@ -276,65 +276,60 @@ function buildMonthMap(rows,dateRow,cols){
     }
   }
 
-  return map;
+  let map;
 }
 
-  /* new activity code /*/
-  
-function findActivityRow(rows,dateRow,badgeRow){
+/* New Activity Code */
 
-  let best=-1;
-  let bestCount=0;
+  function activity(v){
 
-  const activityWords=[
-    'DAY',
-    'NIGHT',
-    'BEAS',
-    'LIPAI',
-    'SAHARANPUR',
-    'दिन',
-    'रात',
-    'ब्यास',
-    'लिपाई',
-    'सहारनपुर'
-  ];
+  const s=clean(v);
 
-  for(let r=0;r<rows.length;r++){
+  const u=s
+    .toUpperCase()
+    .replace(/\s+/g,' ');
 
-    if(r===badgeRow) continue;
-
-    let count=0;
-
-    for(let c=0;c<rows[r].length;c++){
-
-      const s=clean(rows[r][c]).toUpperCase();
-
-      if(!s) continue;
-
-      for(const word of activityWords){
-
-        if(
-          s===word ||
-          s.includes(word)
-        ){
-          count++;
-          break;
-        }
-
-      }
-
-    }
-
-    if(count>bestCount){
-
-      bestCount=count;
-      best=r;
-
-    }
-
+  if(
+    u==='DAY' ||
+    u==='D' ||
+    u==='दिन'
+  ){
+    return 'दिन';
   }
 
-  return best;
+  if(
+    u==='NIGHT' ||
+    u==='N' ||
+    u==='रात'
+  ){
+    return 'रात';
+  }
+
+  if(
+    u==='BEAS' ||
+    u==='B' ||
+    u==='ब्यास' ||
+    u==='ब्यास सेवा'
+  ){
+    return 'ब्यास';
+  }
+
+  if(
+    u.includes('LIPAI') ||
+    u.includes('LIPAY') ||
+    s.includes('लिपाई')
+  ){
+    return 'दिन लिपाई';
+  }
+
+  if(
+    u.includes('SAHARANPUR') ||
+    s.includes('सहारनपुर')
+  ){
+    return 'सहारनपुर';
+  }
+
+  return s;
 }
 
   
@@ -351,43 +346,26 @@ function makeRecords(rows,badgeRow){
   }
 
   /*
-    =========================
-    ACTIVITY ROW FIND
-    =========================
+    आपकी MaleFemaleSKP Sheet में:
 
-    Activity row को fixed rows[2] या dateRow+1
-    नहीं माना जा रहा।
+    Row 1 = Month / Year
+    Row 2 = Date
+    Row 3 = Activity
+    Row 4 onwards = Sewadar data
 
-    जिस row में DAY / NIGHT / BEAS आदि
-    सबसे ज्यादा मिलेंगे, वही Activity row होगी।
+    इसलिए Activity हमेशा Row 3 होगी।
+    JavaScript में Row 3 = rows[2]
   */
 
-  const activityRow=findActivityRow(
-    rows,
-    dateRow,
-    badgeRow
-  );
-
-  if(activityRow<0){
-
-    throw Error(
-      'Activity वाली row नहीं मिली'
-    );
-
-  }
+  const activityRow=rows[2]||[];
 
   const badgeRowData=rows[badgeRow]||[];
 
   const cols=Math.max(
-
     badgeRowData.length,
-
     rows[dateRow]?.length||0,
-
-    rows[activityRow]?.length||0,
-
+    activityRow.length,
     ...rows.map(r=>r.length)
-
   );
 
   const monthMap=buildMonthMap(
@@ -402,17 +380,14 @@ function makeRecords(rows,badgeRow){
 
 
   /*
-    =========================
-    COLUMN BY COLUMN
-    =========================
+    हर column को एक-एक करके पढ़ना
   */
 
   for(let c=0;c<cols;c++){
 
-
     /*
       =========================
-      MONTH HEADER
+      MONTH
       =========================
     */
 
@@ -423,9 +398,7 @@ function makeRecords(rows,badgeRow){
       );
 
       if(mh){
-
         currentMonth=mh;
-
       }
 
     }
@@ -442,9 +415,7 @@ function makeRecords(rows,badgeRow){
 
 
     if(!isShortDate(dateValue)){
-
       continue;
-
     }
 
 
@@ -456,9 +427,7 @@ function makeRecords(rows,badgeRow){
 
 
     if(!dateText){
-
       continue;
-
     }
 
 
@@ -467,29 +436,26 @@ function makeRecords(rows,badgeRow){
       ACTIVITY
       =========================
 
-      इसी column से Activity ली जाएगी।
+      Date जिस column में है,
+      Activity भी उसी column की Row 3 से।
 
       उदाहरण:
 
-      Date row:
-      E = 07-Oct
-      F = 07-Oct
-      G = 11-Oct
+      E2 = 07-Oct
+      E3 = DAY
 
-      Activity row:
-      E = DAY
-      F = NIGHT
-      G = DAY
+      F2 = 07-Oct
+      F3 = NIGHT
 
-      Result:
+      G2 = 11-Oct
+      G3 = DAY
 
-      07-10-2025 दिन
-      07-10-2025 रात
-      11-10-2025 दिन
+      H2 = 13-Oct
+      H3 = BEAS
     */
 
     const activityValue=
-      rows[activityRow]?.[c]??'';
+      activityRow[c]??'';
 
 
     const act=
@@ -511,19 +477,17 @@ function makeRecords(rows,badgeRow){
 
 
     /*
-      खाली attendance को नहीं दिखाना
+      खाली attendance को skip करें
     */
 
     if(number===null){
-
       continue;
-
     }
 
 
     /*
       =========================
-      FINAL LABEL
+      DATE + ACTIVITY
       =========================
     */
 
@@ -531,9 +495,7 @@ function makeRecords(rows,badgeRow){
 
 
     if(act){
-
       label+=' '+act;
-
     }
 
 
@@ -559,8 +521,10 @@ function makeRecords(rows,badgeRow){
 
 
   return result;
-
 }
+    
+
+
     
 
     
