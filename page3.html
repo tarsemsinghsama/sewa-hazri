@@ -279,69 +279,136 @@ function buildMonthMap(rows,dateRow,cols){
   return map;
 }
 
+/* function makeRecords(rows,badgeRow) */
+  
+  
 function makeRecords(rows,badgeRow){
+
   const dateRow=findDateRow(rows,badgeRow);
 
   if(dateRow<0){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
 
-  const activityRow=dateRow+1;
+  /*
+    =========================
+    DATE ROW
+    =========================
+    
+    Date उसी तरह dateRow से ली जाएगी
+    जिस तरह पुराने working code में आ रही थी।
+  */
+
+  /*
+    =========================
+    ACTIVITY ROW
+    =========================
+    
+    Google Sheet की 3rd row
+    JavaScript में rows[2] होती है।
+
+    इसलिए Activity भी उसी column से ली जाएगी
+    जिस column से Date ली जा रही है।
+  */
+
+  const activityRow=rows[2]||[];
+
   const badgeRowData=rows[badgeRow]||[];
 
   const cols=Math.max(
     badgeRowData.length,
     rows[dateRow]?.length||0,
-    rows[activityRow]?.length||0,
+    activityRow.length,
     ...rows.map(r=>r.length)
   );
 
   const monthMap=buildMonthMap(rows,dateRow,cols);
 
   let currentMonth=null;
+
   const result=[];
 
   for(let c=0;c<cols;c++){
 
     /*
-      अगर किसी अलग month header को उसी column पर पाया गया हो,
-      तो आगे के columns के लिए उसे carry करें।
+      =========================
+      MONTH HEADER
+      =========================
     */
+
     for(let r=0;r<dateRow;r++){
+
       const mh=monthHeader(rows[r]?.[c]);
-      if(mh)currentMonth=mh;
+
+      if(mh){
+        currentMonth=mh;
+      }
+
     }
+
+    /*
+      =========================
+      DATE
+      =========================
+    */
 
     const dateValue=rows[dateRow]?.[c]??'';
 
-    if(isShortDate(dateValue)){
-      const formatted=formatDateCell(
-        dateValue,
-        monthMap[c]||currentMonth
-      );
-
-      if(formatted){
-        currentMonth=monthMap[c]||currentMonth;
-      }
+    if(!isShortDate(dateValue)){
+      continue;
     }
-
-    if(!isShortDate(dateValue))continue;
 
     const dateText=formatDateCell(
       dateValue,
       monthMap[c]||currentMonth
     );
 
-    if(!dateText)continue;
+    if(!dateText){
+      continue;
+    }
 
-    const act=activity(rows[activityRow]?.[c]??'');
+    /*
+      =========================
+      ACTIVITY
+      =========================
+
+      Activity सीधे rows[2] से ली जाएगी।
+
+      उदाहरण:
+
+      rows[2][4] = DAY
+      rows[2][5] = NIGHT
+      rows[2][6] = DAY
+      rows[2][7] = BEAS
+    */
+
+    const activityValue=activityRow[c]??'';
+
+    const act=activity(activityValue);
+
+    /*
+      =========================
+      ATTENDANCE
+      =========================
+    */
+
     const raw=badgeRowData[c]??'';
+
     const number=attendanceNumber(raw);
 
     /*
-      खाली cell या 0 को तारीख़वार सूची में नहीं दिखाना है।
+      खाली attendance को नहीं दिखाना
     */
-    if(number===null)continue;
+
+    if(number===null){
+      continue;
+    }
+
+    /*
+      =========================
+      DATE + ACTIVITY
+      =========================
+    */
 
     let label=dateText;
 
@@ -349,17 +416,27 @@ function makeRecords(rows,badgeRow){
       label+=' '+act;
     }
 
+    /*
+      =========================
+      RESULT
+      =========================
+    */
+
     result.push({
       date:dateText,
       activity:act,
       value:number,
       label:label
     });
+
   }
 
   return result;
 }
 
+    
+  */ इससे ऊपर make function है
+  
 function esc(v){
   return String(v??'')
     .replace(/&/g,'&amp;')
