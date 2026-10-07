@@ -282,6 +282,8 @@ function buildMonthMap(rows,dateRow,cols){
 function makeRecords(rows,badgeRow){
   const dateRow=findDateRow(rows,badgeRow);
 
+const activityRow = rows[2];
+  
   if(dateRow<0){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
@@ -341,6 +343,8 @@ function makeRecords(rows,badgeRow){
 
     const act=activity(rows[activityRow]?.[c]??'');
 
+const act=activity(activityRow[c]??'');
+    
 const fixedAct=activity(fixedActivityRow[c]??'');
     
     const raw=badgeRowData[c]??'';
