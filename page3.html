@@ -287,20 +287,17 @@ function makeRecords(rows,badgeRow){
   const activityRow=dateRow+1;
   
 alert(
-  'dateRow = '+dateRow+
-  '\nbadgeRow = '+badgeRow+
+  'ROW 0 = '+JSON.stringify(rows[0])+
 
-  '\n\nROW '+dateRow+
-  ' : '+JSON.stringify(rows[dateRow]?.slice(0,8))+
+  '\n\nROW 1 = '+JSON.stringify(rows[1])+
 
-  '\n\nROW '+(dateRow+1)+
-  ' : '+JSON.stringify(rows[dateRow+1]?.slice(0,8))+
+  '\n\nROW 2 = '+JSON.stringify(rows[2])+
 
-  '\n\nROW '+(dateRow+2)+
-  ' : '+JSON.stringify(rows[dateRow+2]?.slice(0,8))+
+  '\n\nROW 3 = '+JSON.stringify(rows[3])+
 
-  '\n\nROW '+(dateRow+3)+
-  ' : '+JSON.stringify(rows[dateRow+3]?.slice(0,8))
+  '\n\nROW 4 = '+JSON.stringify(rows[4])+
+
+  '\n\nROW 5 = '+JSON.stringify(rows[5])
 );
   
   const badgeData=rows[badgeRow]||[];
