@@ -74,6 +74,7 @@ const params=new URLSearchParams(location.search);
 const BADGE_ID=(params.get('badge')||'').trim();
 
 document.getElementById('badge').textContent=BADGE_ID||'—';
+
 if(BADGE_ID){
   document.getElementById('secondPageLink').href='./index.html?badge='+encodeURIComponent(BADGE_ID);
 }
@@ -86,11 +87,6 @@ function norm(v){
   return clean(v).toUpperCase().replace(/[^A-Z0-9\u0900-\u097F]/g,'');
 }
 
-/*
-  Google Visualization में formatted value (f) को पहले लेना जरूरी है।
-  Date cell का raw value कई बार Date(2025,9,7) जैसा आता है,
-  जबकि f में 07-Oct मिलता है।
-*/
 function val(c){
   if(!c)return '';
   if(c.f!==undefined && c.f!==null && clean(c.f)!=='')return c.f;
@@ -101,6 +97,7 @@ function val(c){
 function parseGViz(text){
   const a=text.indexOf('{');
   const b=text.lastIndexOf('}');
+
   if(a<0 || b<0)throw Error('Google Sheet response नहीं मिला');
 
   const json=JSON.parse(text.slice(a,b+1));
@@ -121,13 +118,11 @@ function parseGViz(text){
   });
 }
 
-/* 07-Oct, 7-Oct, 07/10/2025, 07-10-2025 आदि पहचानना */
 function isShortDate(v){
   const s=clean(v);
 
   if(/^\d{1,2}[-\/.](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(s))return true;
   if(/^\d{1,2}[-\/.](January|February|March|April|May|June|July|August|September|October|November|December)$/i.test(s))return true;
-
   if(/^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/.test(s))return true;
   if(/^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/.test(s))return true;
 
@@ -138,55 +133,56 @@ function monthNumber(name){
   const m={
     JANUARY:1,FEBRUARY:2,MARCH:3,APRIL:4,MAY:5,JUNE:6,
     JULY:7,AUGUST:8,SEPTEMBER:9,OCTOBER:10,NOVEMBER:11,DECEMBER:12,
-    JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,SEP:9,OCT:10,NOV:11,DEC:12
+    JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,
+    SEP:9,OCT:10,NOV:11,DEC:12
   };
-  return m[name.toUpperCase()]||0;
+
+  return m[clean(name).toUpperCase()]||0;
 }
 
 function monthHeader(v){
   const s=clean(v).toUpperCase().replace(/\s+/g,'_');
+
   const m=s.match(/^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[_-]?(\d{4})$/);
+
   if(!m)return null;
 
-  return {
-    month:monthNumber(m[1]),
-    year:Number(m[2])
-  };
+  return{month:monthNumber(m[1]),year:Number(m[2])};
 }
 
 function two(n){
   return String(n).padStart(2,'0');
 }
 
-/*
-  Sheet में screenshot के अनुसार:
-  row 1 -> OCTOBER_2025
-  row 2 -> 07-Oct, 07-Oct, 11-Oct...
-  row 3 -> DAY, NIGHT, DAY...
-*/
 function formatDateCell(value,monthInfo){
   const s=clean(value);
 
   let m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/i);
+
   if(m){
     return two(Number(m[3]))+'-'+two(Number(m[2])+1)+'-'+m[1];
   }
 
   m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);
+
   if(m){
     let y=m[3];
     if(y.length===2)y='20'+y;
+
     return two(Number(m[1]))+'-'+two(Number(m[2]))+'-'+y;
   }
 
   m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+
   if(m){
     return two(Number(m[3]))+'-'+two(Number(m[2]))+'-'+m[1];
   }
 
   m=s.match(/^(\d{1,2})[-\/.]([A-Za-z]{3,9})$/);
+
   if(m && monthInfo){
     const mn=monthNumber(m[2]);
+
     if(mn){
       return two(Number(m[1]))+'-'+two(mn)+'-'+monthInfo.year;
     }
@@ -195,12 +191,13 @@ function formatDateCell(value,monthInfo){
   return s;
 }
 
-
 function attendanceNumber(v){
   const s=clean(v).replace(/,/g,'');
+
   if(!s)return null;
 
   const n=Number(s);
+
   if(Number.isFinite(n) && n>0)return n;
 
   return null;
@@ -218,10 +215,6 @@ function findBadgeRow(rows,badge){
   return -1;
 }
 
-/*
-  Badge row से ऊपर date वाली row खोजी जाती है।
-  Date row के ठीक नीचे activity row होती है।
-*/
 function findDateRow(rows,badgeRow){
   let best=-1;
   let bestCount=0;
@@ -243,9 +236,50 @@ function findDateRow(rows,badgeRow){
 }
 
 /*
-  Month header को date columns तक carry किया जाता है।
-  इससे OCTOBER_2025 + 07-Oct मिलकर 07-10-2025 बनता है।
+  Activity row को fixed rows[2] नहीं माना गया।
+  Date row के बाद वाली rows में DAY/NIGHT/BEAS आदि खोजे जाते हैं।
 */
+function findActivityRow(rows,dateRow,badgeRow){
+  const known=[
+    'DAY','D','दिन',
+    'NIGHT','N','रात',
+    'BEAS','B','ब्यास','ब्यास सेवा',
+    'LIPAI','LIPAY','लिपाई',
+    'SAHARANPUR','सहारनपुर'
+  ];
+
+  let best=-1;
+  let bestScore=0;
+
+  const last=Math.min(badgeRow,dateRow+5);
+
+  for(let r=dateRow+1;r<=last;r++){
+    let score=0;
+
+    for(let c=0;c<rows[r].length;c++){
+      const s=clean(rows[r][c]);
+      const u=s.toUpperCase();
+
+      if(
+        known.includes(u) ||
+        u.includes('LIPAI') ||
+        s.includes('लिपाई') ||
+        u.includes('SAHARANPUR') ||
+        s.includes('सहारनपुर')
+      ){
+        score++;
+      }
+    }
+
+    if(score>bestScore){
+      bestScore=score;
+      best=r;
+    }
+  }
+
+  return best>=0?best:dateRow+1;
+}
+
 function buildMonthMap(rows,dateRow,cols){
   const map=new Array(cols).fill(null);
   let current=null;
@@ -254,9 +288,7 @@ function buildMonthMap(rows,dateRow,cols){
     for(let c=0;c<cols;c++){
       const mh=monthHeader(rows[r]?.[c]);
 
-      if(mh){
-        current=mh;
-      }
+      if(mh)current=mh;
 
       if(r===dateRow && current){
         map[c]=current;
@@ -267,55 +299,27 @@ function buildMonthMap(rows,dateRow,cols){
   return map;
 }
 
-/* New Activity Code */
-
-  function activity(v){
-
+function activity(v){
   const s=clean(v);
 
-  const u=s
-    .toUpperCase()
-    .replace(/\s+/g,' ');
+  const u=s.toUpperCase().replace(/\s+/g,' ');
 
-  if(u==='DAY' || u==='D' || u==='दिन'){
-    return 'दिन';
-  }
+  if(u==='DAY' || u==='D' || s==='दिन')return 'दिन';
+  if(u==='NIGHT' || u==='N' || s==='रात')return 'रात';
+  if(u==='BEAS' || u==='B' || s==='ब्यास' || s==='ब्यास सेवा')return 'ब्यास';
 
-  if(u==='NIGHT' || u==='N' || u==='रात'){
-    return 'रात';
-  }
-
-  if(u==='BEAS' || u==='B' || u==='ब्यास' || u==='ब्यास सेवा'){
-    return 'ब्यास';
-  }
-
-  if(
-    u.includes('LIPAI') ||
-    u.includes('LIPAY') ||
-    s.includes('लिपाई')
-  ){
+  if(u.includes('LIPAI') || u.includes('LIPAY') || s.includes('लिपाई')){
     return 'दिन लिपाई';
   }
 
-  if(
-    u.includes('SAHARANPUR') ||
-    s.includes('सहारनपुर')
-  ){
+  if(u.includes('SAHARANPUR') || s.includes('सहारनपुर')){
     return 'सहारनपुर';
   }
 
   return s;
 }
 
-  
-/* 
-   =========================
-      FUNCTION MAKE RECORD
-    =========================
-*/
-      
-
-  function makeRecords(rows,badgeRow){
+function makeRecords(rows,badgeRow){
 
   const dateRow=findDateRow(rows,badgeRow);
 
@@ -323,12 +327,7 @@ function buildMonthMap(rows,dateRow,cols){
     throw Error('तारीख़ वाली row नहीं मिली');
   }
 
-  /*
-    Date row के ठीक नीचे वाली row ही Activity row है।
-    Google GViz में row index बदल सकता है,
-    इसलिए dateRow के आधार पर Activity निकाली जा रही है।
-  */
-  const activityRow=dateRow+1;
+  const activityRow=findActivityRow(rows,dateRow,badgeRow);
 
   const badgeData=rows[badgeRow]||[];
 
@@ -339,86 +338,40 @@ function buildMonthMap(rows,dateRow,cols){
     ...rows.map(r=>r.length)
   );
 
-  const monthMap=buildMonthMap(
-    rows,
-    dateRow,
-    cols
-  );
+  const monthMap=buildMonthMap(rows,dateRow,cols);
 
   let currentMonth=null;
-
   const result=[];
 
   for(let c=0;c<cols;c++){
 
-    /*
-      Month / Year
-    */
     for(let r=0;r<dateRow;r++){
-
-      const mh=monthHeader(
-        rows[r]?.[c]
-      );
-
-      if(mh){
-        currentMonth=mh;
-      }
-
+      const mh=monthHeader(rows[r]?.[c]);
+      if(mh)currentMonth=mh;
     }
 
-    /*
-      Date
-    */
-    const dateValue=
-      rows[dateRow]?.[c]??'';
+    const dateValue=rows[dateRow]?.[c]??'';
 
-    if(!isShortDate(dateValue)){
-      continue;
-    }
+    if(!isShortDate(dateValue))continue;
 
-    const dateText=
-      formatDateCell(
-        dateValue,
-        monthMap[c]||currentMonth
-      );
+    const dateText=formatDateCell(
+      dateValue,
+      monthMap[c]||currentMonth
+    );
 
-    if(!dateText){
-      continue;
-    }
+    if(!dateText)continue;
 
-    /*
-      उसी column की Activity
-    */
-    const activityValue=
-      rows[activityRow]?.[c]??'';
+    const activityValue=rows[activityRow]?.[c]??'';
+    const act=activity(activityValue);
 
-    const act=
-      activity(activityValue);
+    const raw=badgeData[c]??'';
+    const number=attendanceNumber(raw);
 
-    /*
-      उसी column में इस Sewadar की attendance
-    */
-    const raw=
-      badgeData[c]??'';
+    if(number===null)continue;
 
-    const number=
-      attendanceNumber(raw);
-
-    /*
-      खाली cell को skip करें
-    */
-    if(number===null){
-      continue;
-    }
-
-    /*
-      Date + Activity
-    */
     let label=dateText;
 
-    if(act){
-      label+=' '+act;
-    }
+    if(act)label+=' '+act;
 
     result.push({
       date:dateText,
@@ -430,11 +383,7 @@ function buildMonthMap(rows,dateRow,cols){
 
   return result;
 }
-    
 
-    
-  /* इससे ऊपर make function है */
-  
 function esc(v){
   return String(v??'')
     .replace(/&/g,'&amp;')
@@ -450,6 +399,7 @@ function show(items){
 
   if(!items.length){
     status.textContent='डेटा मिल गया, लेकिन इस Badge ID की कोई तारीख़वार हाज़री नहीं मिली।';
+
     box.innerHTML='<div class="empty">इस Badge ID की तारीख़वार हाज़री नहीं मिली।</div>';
     return;
   }
@@ -479,7 +429,8 @@ function show(items){
 
 async function logo(){
   try{
-    const r=await fetch('./index.html',{cache:'no-store'});
+    const r=await fetch('./index.html?logo='+Date.now(),{cache:'no-store'});
+
     if(!r.ok)return;
 
     const t=await r.text();
@@ -505,10 +456,15 @@ async function load(){
   }
 
   try{
+
+    /*
+      IMPORTANT:
+      headers=0 से Sheet की पहली row भी data के रूप में मिलेगी।
+    */
     const url=
       'https://docs.google.com/spreadsheets/d/'+
       SHEET_ID+
-      '/gviz/tq?tqx=out:json&sheet='+
+      '/gviz/tq?tqx=out:json&headers=0&sheet='+
       encodeURIComponent(SHEET_NAME)+
       '&t='+Date.now();
 
@@ -524,11 +480,13 @@ async function load(){
 
     if(badgeRow<0){
       status.textContent='Badge ID नहीं मिली।';
+
       box.innerHTML=
         '<div class="error">'+
         'Google Sheet <b>'+esc(SHEET_NAME)+'</b> में '+
-        '<b>'+esc(BADGE_ID)+'</b> नहीं मिली।'+
+        '<b>'+esc(BADGE_ID)+'</b> नहीं मिली.'+
         '</div>';
+
       return;
     }
 
@@ -559,3 +517,9 @@ load();
 </script>
 </body>
 </html>
+
+
+
+
+
+
