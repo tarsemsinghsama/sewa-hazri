@@ -15,8 +15,40 @@ body{overflow-x:hidden}
 .top-logo{width:112px;height:112px;object-fit:contain;display:block;margin:0 auto 5px}
 h1{margin:0;color:var(--maroon);font-size:29px;font-weight:800}
 .sub{margin-top:5px;font-size:23px;font-weight:800}
+
+.result-top{
+  position:relative;
+  z-index:2;
+  padding:25px 18px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.home-btn{
+  width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--maroon);
+  text-decoration:none;
+  flex-shrink:0;
+}
+
+.home-btn svg{
+  width:27px;
+  height:27px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+  
 .nav{position:relative;z-index:2;display:flex;gap:10px;width:min(660px,calc(100% - 30px));margin:18px auto 20px}
 .nav a{flex:1;display:block;text-align:center;text-decoration:none;color:var(--maroon);background:#fff;border:1.5px solid var(--maroon);border-radius:14px;padding:15px 8px;font-size:17px;font-weight:800}
+  
 .card{position:relative;z-index:2;width:min(660px,calc(100% - 30px));margin:0 auto;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:17px;box-shadow:0 5px 18px rgba(0,0,0,.08);padding:20px 14px}
 .badge-label{text-align:center;color:var(--muted);font-size:18px}
 .badge{text-align:center;color:var(--maroon);font-size:28px;font-weight:900;margin-top:8px;word-break:break-word}
@@ -51,11 +83,18 @@ th,td{font-size:14px;padding:10px 7px}
 <div class="sub">सिकन्दरपुर</div>
 </header>
 
-<nav class="nav">
-<a href="./index.html">🏠 Home Page</a>
-<a id="secondPageLink" href="./index.html">⬅️ 2nd Page</a>
-</nav>
+  
+<div class="result-top">
+  <a class="back" id="secondPageLink">‹ Back</a>
 
+  <a class="home-btn" href="./index.html" aria-label="Home">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5v-6h-5v6h-5A1.5 1.5 0 0 1 3 19.5v-9Z"/>
+    </svg>
+  </a>
+</div>
+
+  
 <main class="card">
 <div class="badge-label">Badge ID</div>
 <div id="badge" class="badge">—</div>
