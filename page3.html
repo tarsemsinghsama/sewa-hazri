@@ -1,18 +1,21 @@
 <!doctype html>
 <html lang="hi">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0">
+
 <title>तारीख़वार हाज़री</title>
-<style>
 
 <style>
+
 :root{
   --maroon:#790000;
-  --maroon2:#5f0000;
-  --ink:#182235;
   --muted:#697386;
   --line:#dfe3e8;
+  --ink:#182235;
 }
 
 *{
@@ -25,14 +28,12 @@ body{
   padding:0;
   width:100%;
   height:100%;
-  font-family:system-ui,-apple-system,"Noto Sans Devanagari","Noto Sans",Arial,sans-serif;
-  color:var(--ink);
+  font-family:system-ui,-apple-system,
+  "Noto Sans Devanagari","Noto Sans",
+  Arial,sans-serif;
   background:#fff;
+  color:var(--ink);
   overflow:hidden;
-}
-
-body{
-  min-height:100vh;
 }
 
 /* =========================
@@ -43,12 +44,12 @@ body{
   position:fixed;
   z-index:0;
   left:50%;
-  top:55%;
+  top:53%;
   width:min(82vw,470px);
   height:min(82vw,470px);
   transform:translate(-50%,-50%);
   pointer-events:none;
-  opacity:.10;
+  opacity:.075;
 }
 
 .watermark img{
@@ -59,87 +60,67 @@ body{
 }
 
 /* =========================
-   TOP HEADER
-========================= */
-
-.top{
-  position:relative;
-  z-index:2;
-  text-align:center;
-  padding:22px 15px 0;
-  flex-shrink:0;
-}
-
-.top-logo{
-  width:76px;
-  height:76px;
-  object-fit:contain;
-  display:block;
-  margin:0 auto 5px;
-}
-
-h1{
-  margin:0;
-  color:var(--maroon);
-  font-size:25px;
-  font-weight:800;
-  line-height:1.2;
-}
-
-.sub{
-  margin-top:5px;
-  font-size:20px;
-  font-weight:800;
-}
-
-/* =========================
-   BACK + HOME
+   TOP BACK + HOME
 ========================= */
 
 .result-top{
-  position:relative;
-  z-index:5;
+  position:fixed;
+  top:0;
+  left:0;
   width:100%;
-  padding:16px 25px 0;
+  height:78px;
+
+  padding:25px 25px 0;
+
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
-  flex-shrink:0;
+
+  z-index:10;
+
+  background:#fff;
 }
 
 .back{
   border:0;
   background:transparent;
+
   color:var(--maroon);
+
   font-size:20px;
   font-weight:650;
+
   padding:5px 0;
-  cursor:pointer;
+
   text-decoration:none;
-  display:inline-flex;
+
+  display:flex;
   align-items:center;
 }
 
 .back span{
   font-size:31px;
-  vertical-align:-2px;
+  line-height:20px;
   margin-right:5px;
 }
 
 .home-btn{
   width:42px;
   height:42px;
+
   display:flex;
   align-items:center;
   justify-content:center;
+
   color:var(--maroon);
+
   text-decoration:none;
-  flex-shrink:0;
 }
 
 .home-btn svg{
   width:30px;
   height:30px;
+
   fill:none;
   stroke:currentColor;
   stroke-width:2;
@@ -148,127 +129,161 @@ h1{
 }
 
 /* =========================
-   MAIN CARD
+   SCROLL AREA
+========================= */
+
+.page-scroll{
+  position:fixed;
+
+  top:78px;
+  left:0;
+  right:0;
+  bottom:58px;
+
+  overflow-y:auto;
+  overflow-x:hidden;
+
+  z-index:2;
+
+  -webkit-overflow-scrolling:touch;
+
+  padding:10px 0 35px;
+}
+
+/* =========================
+   PERSON DETAILS
+========================= */
+
+.identity{
+  width:100%;
+  text-align:center;
+
+  padding:5px 18px 0;
+}
+
+.badge{
+  font-size:29px;
+  font-weight:850;
+  color:var(--ink);
+
+  word-break:break-word;
+}
+
+.person-name{
+  font-size:25px;
+  font-weight:800;
+
+  margin-top:5px;
+}
+
+.parent-name{
+  font-size:18px;
+  color:#747d8c;
+
+  margin-top:4px;
+
+  font-weight:550;
+}
+
+/* =========================
+   ATTENDANCE CARD
 ========================= */
 
 .card{
   position:relative;
-  z-index:2;
 
-  width:min(660px,calc(100% - 40px));
+  width:min(100% - 40px,660px);
 
-  margin:12px auto 0;
+  margin:28px auto 0;
 
-  background:rgba(255,255,255,.94);
+  background:rgba(255,255,255,.93);
 
   border:1px solid var(--line);
+
   border-radius:17px;
 
-  box-shadow:0 5px 18px rgba(0,0,0,.08);
-
-  padding:20px 14px;
-
-  display:flex;
-  flex-direction:column;
-
-  height:calc(100vh - 235px);
-
-  min-height:300px;
+  box-shadow:
+    0 5px 18px rgba(0,0,0,.08);
 
   overflow:hidden;
 }
 
 /* =========================
-   BADGE
+   TITLE
 ========================= */
 
-.badge-label{
-  text-align:center;
-  color:var(--muted);
-  font-size:18px;
-  flex-shrink:0;
-}
+.attendance-title{
+  padding:22px 27px 18px;
 
-.badge{
-  text-align:center;
   color:var(--maroon);
-  font-size:28px;
-  font-weight:900;
-  margin-top:8px;
-  word-break:break-word;
-  flex-shrink:0;
-}
 
-.title{
-  text-align:center;
-  color:var(--maroon);
   font-size:27px;
   font-weight:900;
-  margin:20px 0 10px;
-  flex-shrink:0;
+
+  border-bottom:1px solid var(--line);
+
+  background:rgba(255,248,248,.55);
 }
+
+/* =========================
+   STATUS
+========================= */
 
 .status{
   text-align:center;
+
   color:var(--muted);
+
   font-size:15px;
-  margin:0 0 12px;
-  flex-shrink:0;
+
+  padding:12px 10px 10px;
 }
 
 /* =========================
-   ONLY ATTENDANCE AREA SCROLLS
+   TABLE
 ========================= */
-
-#result{
-  flex:1;
-  min-height:0;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
 
 .table-wrap{
   width:100%;
-  height:100%;
-  overflow-y:auto;
+
   overflow-x:auto;
 
-  border:1px solid #eadede;
-  border-radius:12px;
-  background:#fff;
-
-  -webkit-overflow-scrolling:touch;
+  background:rgba(255,255,255,.72);
 }
 
 table{
   width:100%;
+
   border-collapse:collapse;
+
   min-width:390px;
 }
 
 th,
 td{
   border-bottom:1px solid #eadede;
-  padding:11px 9px;
+
+  padding:11px 12px;
+
   text-align:left;
+
   font-size:15px;
 }
 
 th{
   background:#fff7f7;
-  color:var(--maroon);
-  font-weight:800;
-  white-space:nowrap;
 
-  position:sticky;
-  top:0;
-  z-index:3;
+  color:var(--maroon);
+
+  font-weight:800;
+
+  white-space:nowrap;
 }
 
 td:last-child,
 th:last-child{
   text-align:center;
+
   width:90px;
 }
 
@@ -276,25 +291,63 @@ tr:last-child td{
   border-bottom:none;
 }
 
+/* =========================
+   EMPTY / ERROR
+========================= */
+
 .empty,
 .error{
+  margin:15px;
+
   padding:18px 12px;
+
   text-align:center;
+
   border-radius:12px;
+
   font-size:16px;
+
   line-height:1.6;
 }
 
 .empty{
   color:var(--maroon);
+
   background:#fff8f8;
+
   border:1px solid #eadede;
 }
 
 .error{
   color:#8a1f1f;
+
   background:#fff6f6;
+
   border:1px solid #eadede;
+}
+
+/* =========================
+   LAST UPDATED
+========================= */
+
+.updated{
+  text-align:center;
+
+  color:var(--muted);
+
+  font-size:16px;
+
+  margin:30px 0 10px;
+
+  padding:0 10px;
+}
+
+.calendar{
+  display:inline-block;
+
+  margin-right:7px;
+
+  font-size:18px;
 }
 
 /* =========================
@@ -303,25 +356,29 @@ tr:last-child td{
 
 .footer{
   position:fixed;
+
   left:0;
   bottom:0;
 
   width:100%;
 
-  z-index:10;
+  height:58px;
 
-  text-align:center;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
 
-  padding:10px 12px 24px;
+  padding-bottom:18px;
+
+  z-index:20;
+
+  background:rgba(248,248,250,.96);
 
   color:var(--muted);
 
   font-size:10px;
+
   font-weight:650;
-
-  background:transparent;
-
-  pointer-events:none;
 }
 
 .footer b{
@@ -334,25 +391,18 @@ tr:last-child td{
 
 @media(max-width:600px){
 
-  .top{
-    padding-top:22px;
-  }
-
-  .top-logo{
-    width:76px;
-    height:76px;
-  }
-
-  h1{
-    font-size:25px;
-  }
-
-  .sub{
-    font-size:20px;
-  }
-
   .result-top{
-    padding:15px 25px 0;
+    height:72px;
+
+    padding:
+      20px 25px 0;
+  }
+
+  .page-scroll{
+    top:72px;
+    bottom:58px;
+
+    padding-top:8px;
   }
 
   .back{
@@ -369,63 +419,83 @@ tr:last-child td{
     height:30px;
   }
 
+  .identity{
+    padding-top:8px;
+  }
+
+  .badge{
+    font-size:28px;
+  }
+
+  .person-name{
+    font-size:24px;
+  }
+
+  .parent-name{
+    font-size:18px;
+  }
+
   .card{
     width:calc(100% - 40px);
-    margin-top:10px;
 
-    height:calc(100vh - 225px);
-
-    padding:18px 10px;
+    margin-top:26px;
 
     border-radius:17px;
   }
 
-  .badge-label{
-    font-size:18px;
-  }
+  .attendance-title{
+    padding:
+      21px 27px 17px;
 
-  .badge{
-    font-size:27px;
-  }
-
-  .title{
-    font-size:25px;
-    margin-top:18px;
+    font-size:26px;
   }
 
   .status{
     font-size:15px;
+
+    padding:
+      11px 10px 9px;
   }
 
   th,
   td{
     font-size:14px;
-    padding:10px 7px;
+
+    padding:
+      10px 9px;
+  }
+
+  .updated{
+    font-size:16px;
+
+    margin-top:30px;
+
+    padding-bottom:12px;
   }
 
   .footer{
-    font-size:10px;
-    padding-bottom:23px;
-  }
-}
-</style>
+    height:58px;
 
-  
+    padding-bottom:18px;
+
+    font-size:10px;
+  }
+
+}
+
 </style>
 </head>
-<body>
 
 <body>
+
+<!-- FIXED WATERMARK -->
 
 <div class="watermark">
   <img id="watermarkLogo" alt="">
 </div>
 
-<header class="top">
-  <img id="topLogo" class="top-logo" alt="RSB">
-  <h1>Sewadar Information Portal</h1>
-  <div class="sub">सिकन्दरपुर</div>
-</header>
+
+<!-- FIXED BACK + HOME -->
 
 <div class="result-top">
 
@@ -433,151 +503,354 @@ tr:last-child td{
     <span>‹</span>Back
   </a>
 
-  <a class="home-btn"
-     href="./index.html"
-     aria-label="Home">
+  <a
+    class="home-btn"
+    href="./index.html"
+    aria-label="Home"
+  >
 
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5v-6h-5v6h-5A1.5 1.5 0 0 1 3 19.5v-9Z"/>
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+
+      <path
+        d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5v-6h-5v6h-5A1.5 1.5 0 0 1 3 19.5v-9Z"
+      />
+
     </svg>
 
   </a>
 
 </div>
 
-<main class="card">
 
-  <div class="badge-label">
-    Badge ID
+<!-- ONLY THIS AREA SCROLLS -->
+
+<div class="page-scroll">
+
+  <!-- PERSON INFORMATION -->
+
+  <section class="identity">
+
+    <div
+      id="badge"
+      class="badge"
+    >
+      —
+    </div>
+
+    <div
+      id="personName"
+      class="person-name"
+    >
+      —
+    </div>
+
+    <div
+      id="parentName"
+      class="parent-name"
+    >
+      —
+    </div>
+
+  </section>
+
+
+  <!-- ATTENDANCE -->
+
+  <main class="card">
+
+    <div class="attendance-title">
+      तारीख़वार हाज़री
+    </div>
+
+    <div
+      id="status"
+      class="status"
+    >
+      हाज़री की जानकारी लोड हो रही है...
+    </div>
+
+    <div id="result"></div>
+
+  </main>
+
+
+  <!-- LAST UPDATED -->
+
+  <div class="updated">
+
+    <span class="calendar">▣</span>
+
+    Last Updated on 03 October, 2026
+
   </div>
 
-  <div id="badge" class="badge">
-    —
-  </div>
+</div>
 
-  <div class="title">
-    तारीख़वार हाज़री
-  </div>
 
-  <div id="status" class="status">
-    हाज़री की जानकारी लोड हो रही है...
-  </div>
-
-  <div id="result"></div>
-
-</main>
+<!-- FIXED CONTACT -->
 
 <footer class="footer">
-  Contact No.: <b>+91 93156 64443</b>
+
+  Contact No.:
+  <b>&nbsp;+91 93156 64443</b>
+
 </footer>
-  
+
 
 <script>
-const SHEET_ID='1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8';
-const SHEET_NAME='MaleFemaleSKP';
 
-const params=new URLSearchParams(location.search);
-const BADGE_ID=(params.get('badge')||'').trim();
+const SHEET_ID=
+'1H_TIjqyH_Hphcj315ZxAG52Jpoj7WF5TY5sl4DHSAs8';
 
-document.getElementById('badge').textContent=BADGE_ID||'—';
+const SHEET_NAME=
+'MaleFemaleSKP';
+
+
+const params=
+new URLSearchParams(location.search);
+
+const BADGE_ID=
+(params.get('badge')||'').trim();
+
+
+document.getElementById('badge')
+.textContent=
+BADGE_ID||'—';
+
 
 if(BADGE_ID){
-  document.getElementById('secondPageLink').href='./index.html?badge='+encodeURIComponent(BADGE_ID);
+
+  document.getElementById(
+    'secondPageLink'
+  ).href=
+    './index.html?badge='+
+    encodeURIComponent(BADGE_ID);
+
 }
+
 
 function clean(v){
-  return String(v??'').replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim();
+
+  return String(v??'')
+    .replace(/\u00a0/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+
 }
+
 
 function norm(v){
-  return clean(v).toUpperCase().replace(/[^A-Z0-9\u0900-\u097F]/g,'');
+
+  return clean(v)
+    .toUpperCase()
+    .replace(
+      /[^A-Z0-9\u0900-\u097F]/g,
+      ''
+    );
+
 }
+
 
 function val(c){
+
   if(!c)return '';
-  if(c.f!==undefined && c.f!==null && clean(c.f)!=='')return c.f;
-  if(c.v!==undefined && c.v!==null)return c.v;
+
+  if(
+    c.f!==undefined &&
+    c.f!==null &&
+    clean(c.f)!==''
+  ){
+    return c.f;
+  }
+
+  if(
+    c.v!==undefined &&
+    c.v!==null
+  ){
+    return c.v;
+  }
+
   return '';
+
 }
+
 
 function parseGViz(text){
+
   const a=text.indexOf('{');
   const b=text.lastIndexOf('}');
 
   if(a<0 || b<0){
-    throw Error('Google Sheet response नहीं मिला');
+    throw Error(
+      'Google Sheet response नहीं मिला'
+    );
   }
 
-  const json=JSON.parse(text.slice(a,b+1));
+  const json=
+    JSON.parse(
+      text.slice(a,b+1)
+    );
+
   const table=json.table;
 
-  if(!table || !Array.isArray(table.rows)){
-    throw Error('Google Sheet में data नहीं मिला');
+  if(
+    !table ||
+    !Array.isArray(table.rows)
+  ){
+    throw Error(
+      'Google Sheet में data नहीं मिला'
+    );
   }
 
-  const n=(table.cols||[]).length;
+  const n=
+    (table.cols||[]).length;
 
   return table.rows.map(row=>{
-    const out=new Array(n).fill('');
 
-    (row.c||[]).forEach((cell,i)=>{
-      if(i<n){
-        out[i]=val(cell);
+    const out=
+      new Array(n).fill('');
+
+    (row.c||[]).forEach(
+      (cell,i)=>{
+
+        if(i<n){
+          out[i]=val(cell);
+        }
+
       }
-    });
+    );
 
     return out;
+
   });
+
 }
 
+
 function parseGVizHeaderRow(text){
+
   const a=text.indexOf('{');
   const b=text.lastIndexOf('}');
 
   if(a<0 || b<0){
-    throw Error('Header row response नहीं मिला');
+    throw Error(
+      'Header row response नहीं मिला'
+    );
   }
 
-  const json=JSON.parse(text.slice(a,b+1));
-  const cols=json.table?.cols || [];
+  const json=
+    JSON.parse(
+      text.slice(a,b+1)
+    );
+
+  const cols=
+    json.table?.cols||[];
 
   return cols.map(col=>{
+
     const s=clean(col.label);
 
-    if(/^Col\d+$/i.test(s)) return '';
+    if(/^Col\d+$/i.test(s)){
+      return '';
+    }
 
     return s;
+
   });
+
 }
+
 
 function isShortDate(v){
+
   const s=clean(v);
 
-  if(/^\d{1,2}[-\/.](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i.test(s))return true;
-  if(/^\d{1,2}[-\/.](January|February|March|April|May|June|July|August|September|October|November|December)$/i.test(s))return true;
-  if(/^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/.test(s))return true;
-  if(/^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/.test(s))return true;
+  if(
+    /^\d{1,2}[-\/.](Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/i
+    .test(s)
+  ){
+    return true;
+  }
 
-  return /^Date\(\d{4},\d{1,2},\d{1,2}\)$/i.test(s);
+  if(
+    /^\d{1,2}[-\/.](January|February|March|April|May|June|July|August|September|October|November|December)$/i
+    .test(s)
+  ){
+    return true;
+  }
+
+  if(
+    /^\d{1,2}[-\/.]\d{1,2}[-\/.]\d{2,4}$/
+    .test(s)
+  ){
+    return true;
+  }
+
+  if(
+    /^\d{4}[-\/.]\d{1,2}[-\/.]\d{1,2}$/
+    .test(s)
+  ){
+    return true;
+  }
+
+  return /^Date\(\d{4},\d{1,2},\d{1,2}\)$/i
+    .test(s);
+
 }
+
 
 function monthNumber(name){
+
   const m={
-    JANUARY:1,FEBRUARY:2,MARCH:3,APRIL:4,MAY:5,JUNE:6,
-    JULY:7,AUGUST:8,SEPTEMBER:9,OCTOBER:10,NOVEMBER:11,DECEMBER:12,
-    JAN:1,FEB:2,MAR:3,APR:4,MAY:5,JUN:6,JUL:7,AUG:8,
-    SEP:9,OCT:10,NOV:11,DEC:12
+
+    JANUARY:1,
+    FEBRUARY:2,
+    MARCH:3,
+    APRIL:4,
+    MAY:5,
+    JUNE:6,
+    JULY:7,
+    AUGUST:8,
+    SEPTEMBER:9,
+    OCTOBER:10,
+    NOVEMBER:11,
+    DECEMBER:12,
+
+    JAN:1,
+    FEB:2,
+    MAR:3,
+    APR:4,
+    JUN:6,
+    JUL:7,
+    AUG:8,
+    SEP:9,
+    OCT:10,
+    NOV:11,
+    DEC:12
+
   };
 
-  return m[clean(name).toUpperCase()]||0;
+  return m[
+    clean(name).toUpperCase()
+  ]||0;
+
 }
 
-function monthHeader(v){
-  const s=clean(v).toUpperCase().replace(/\s+/g,'_');
 
-  const m=s.match(
-    /^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[_-]?(\d{4})$/
-  );
+function monthHeader(v){
+
+  const s=
+    clean(v)
+    .toUpperCase()
+    .replace(/\s+/g,'_');
+
+  const m=
+    s.match(
+      /^(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|OCTOBER|NOVEMBER|DECEMBER|JAN|FEB|MAR|APR|JUN|JUL|AUG|SEP|OCT|NOV|DEC)[_-]?(\d{4})$/
+    );
 
   if(!m)return null;
 
@@ -585,117 +858,237 @@ function monthHeader(v){
     month:monthNumber(m[1]),
     year:Number(m[2])
   };
+
 }
+
 
 function two(n){
+
   return String(n).padStart(2,'0');
+
 }
 
-function formatDateCell(value,monthInfo){
+
+function formatDateCell(
+  value,
+  monthInfo
+){
+
   const s=clean(value);
 
-  let m=s.match(/^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/i);
+  let m=
+    s.match(
+      /^Date\((\d{4}),(\d{1,2}),(\d{1,2})\)$/i
+    );
 
   if(m){
-    return two(Number(m[3]))+'-'+
-           two(Number(m[2])+1)+'-'+
-           m[1];
+
+    return two(Number(m[3]))+
+      '-'+
+      two(Number(m[2])+1)+
+      '-'+
+      m[1];
+
   }
 
-  m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);
+  m=
+    s.match(
+      /^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/
+    );
 
   if(m){
+
     let y=m[3];
 
-    if(y.length===2)y='20'+y;
+    if(y.length===2){
+      y='20'+y;
+    }
 
-    return two(Number(m[1]))+'-'+
-           two(Number(m[2]))+'-'+
-           y;
+    return two(Number(m[1]))+
+      '-'+
+      two(Number(m[2]))+
+      '-'+
+      y;
+
   }
 
-  m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/);
+  m=
+    s.match(
+      /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/
+    );
 
   if(m){
-    return two(Number(m[3]))+'-'+
-           two(Number(m[2]))+'-'+
-           m[1];
+
+    return two(Number(m[3]))+
+      '-'+
+      two(Number(m[2]))+
+      '-'+
+      m[1];
+
   }
 
-  m=s.match(/^(\d{1,2})[-\/.]([A-Za-z]{3,9})$/);
+  m=
+    s.match(
+      /^(\d{1,2})[-\/.]([A-Za-z]{3,9})$/
+    );
 
   if(m && monthInfo){
-    const mn=monthNumber(m[2]);
+
+    const mn=
+      monthNumber(m[2]);
 
     if(mn){
-      return two(Number(m[1]))+'-'+
-             two(mn)+'-'+
-             monthInfo.year;
+
+      return two(Number(m[1]))+
+        '-'+
+        two(mn)+
+        '-'+
+        monthInfo.year;
+
     }
+
   }
 
   return s;
+
 }
 
+
 function attendanceNumber(v){
-  const s=clean(v).replace(/,/g,'');
+
+  const s=
+    clean(v).replace(/,/g,'');
 
   if(!s)return null;
 
   const n=Number(s);
 
-  if(Number.isFinite(n) && n>0)return n;
+  if(
+    Number.isFinite(n) &&
+    n>0
+  ){
+    return n;
+  }
 
   return null;
+
 }
 
-function findBadgeRow(rows,badge){
+
+function findBadgeRow(
+  rows,
+  badge
+){
+
   const target=norm(badge);
 
-  for(let r=0;r<rows.length;r++){
-    for(let c=0;c<Math.min(rows[r].length,5);c++){
-      if(norm(rows[r][c])===target){
+  for(
+    let r=0;
+    r<rows.length;
+    r++
+  ){
+
+    for(
+      let c=0;
+      c<Math.min(
+        rows[r].length,
+        5
+      );
+      c++
+    ){
+
+      if(
+        norm(rows[r][c])===
+        target
+      ){
         return r;
       }
+
     }
+
   }
 
   return -1;
+
 }
 
-function findDateRow(rows,badgeRow){
+
+function findDateRow(
+  rows,
+  badgeRow
+){
+
   let best=-1;
   let bestCount=0;
 
-  for(let r=0;r<badgeRow;r++){
+  for(
+    let r=0;
+    r<badgeRow;
+    r++
+  ){
+
     let count=0;
 
-    for(let c=0;c<rows[r].length;c++){
-      if(isShortDate(rows[r][c]))count++;
+    for(
+      let c=0;
+      c<rows[r].length;
+      c++
+    ){
+
+      if(
+        isShortDate(
+          rows[r][c]
+        )
+      ){
+        count++;
+      }
+
     }
 
     if(count>bestCount){
+
       bestCount=count;
       best=r;
+
     }
+
   }
 
   return best;
+
 }
 
-function activity(v){
-  const s=clean(v);
-  const u=s.toUpperCase().replace(/\s+/g,' ');
 
-  if(u==='DAY' || u==='D' || s==='दिन'){
+function activity(v){
+
+  const s=clean(v);
+
+  const u=
+    s.toUpperCase()
+    .replace(/\s+/g,' ');
+
+  if(
+    u==='DAY' ||
+    u==='D' ||
+    s==='दिन'
+  ){
     return 'दिन';
   }
 
-  if(u==='NIGHT' || u==='N' || s==='रात'){
+  if(
+    u==='NIGHT' ||
+    u==='N' ||
+    s==='रात'
+  ){
     return 'रात';
   }
 
-  if(u==='BEAS' || u==='B' || s==='ब्यास' || s==='ब्यास सेवा'){
+  if(
+    u==='BEAS' ||
+    u==='B' ||
+    s==='ब्यास' ||
+    s==='ब्यास सेवा'
+  ){
     return 'ब्यास';
   }
 
@@ -715,53 +1108,88 @@ function activity(v){
   }
 
   return s;
+
 }
 
-function makeRecords(rows,badgeRow,activityValues,monthValues){
 
-  const dateRow=findDateRow(rows,badgeRow);
+function makeRecords(
+  rows,
+  badgeRow,
+  activityValues,
+  monthValues
+){
+
+  const dateRow=
+    findDateRow(
+      rows,
+      badgeRow
+    );
 
   if(dateRow<0){
-    throw Error('तारीख़ वाली row नहीं मिली');
+
+    throw Error(
+      'तारीख़ वाली row नहीं मिली'
+    );
+
   }
 
-  const badgeData=rows[badgeRow]||[];
+  const badgeData=
+    rows[badgeRow]||[];
 
-  const cols=Math.max(
-    rows[dateRow]?.length||0,
-    badgeData.length,
-    activityValues.length,
-    monthValues.length,
-    ...rows.map(r=>r.length)
-  );
+  const cols=
+    Math.max(
+      rows[dateRow]?.length||0,
+      badgeData.length,
+      activityValues.length,
+      monthValues.length,
+      ...rows.map(r=>r.length)
+    );
 
   let currentMonth=null;
+
   const result=[];
 
-  for(let c=0;c<cols;c++){
+  for(
+    let c=0;
+    c<cols;
+    c++
+  ){
 
-    const mh=monthHeader(monthValues[c]);
+    const mh=
+      monthHeader(
+        monthValues[c]
+      );
 
     if(mh){
       currentMonth=mh;
     }
 
-    const dateValue=rows[dateRow]?.[c]??'';
+    const dateValue=
+      rows[dateRow]?.[c]??'';
 
-    if(!isShortDate(dateValue))continue;
+    if(
+      !isShortDate(dateValue)
+    ){
+      continue;
+    }
 
-    const dateText=formatDateCell(
-      dateValue,
-      currentMonth
-    );
+    const dateText=
+      formatDateCell(
+        dateValue,
+        currentMonth
+      );
 
-    if(!dateText)continue;
+    if(!dateText){
+      continue;
+    }
 
-    const rawActivity=clean(
-      activityValues[c]??''
-    );
+    const rawActivity=
+      clean(
+        activityValues[c]??''
+      );
 
-    const u=rawActivity.toUpperCase();
+    const u=
+      rawActivity.toUpperCase();
 
     const validActivity=
       u==='DAY' ||
@@ -784,10 +1212,15 @@ function makeRecords(rows,badgeRow,activityValues,monthValues){
       ? activity(rawActivity)
       : '';
 
-    const raw=badgeData[c]??'';
-    const number=attendanceNumber(raw);
+    const raw=
+      badgeData[c]??'';
 
-    if(number===null)continue;
+    const number=
+      attendanceNumber(raw);
+
+    if(number===null){
+      continue;
+    }
 
     let label=dateText;
 
@@ -801,98 +1234,174 @@ function makeRecords(rows,badgeRow,activityValues,monthValues){
       value:number,
       label:label
     });
+
   }
 
   return result;
+
 }
+
 
 function esc(v){
+
   return String(v??'')
+
     .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
+
+    .replace(
+      /</g,
+      '&lt;'
+    )
+
+    .replace(
+      />/g,
+      '&gt;'
+    )
+
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
 }
 
+
 function show(items){
-  const status=document.getElementById('status');
-  const box=document.getElementById('result');
+
+  const status=
+    document.getElementById(
+      'status'
+    );
+
+  const box=
+    document.getElementById(
+      'result'
+    );
 
   if(!items.length){
+
     status.textContent=
-      'डेटा मिल गया, लेकिन इस Badge ID की कोई तारीख़वार हाज़री नहीं मिली।';
+      'इस Badge ID की कोई तारीख़वार हाज़री नहीं मिली।';
 
     box.innerHTML=
-      '<div class="empty">इस Badge ID की तारीख़वार हाज़री नहीं मिली।</div>';
+      '<div class="empty">'+
+      'इस Badge ID की तारीख़वार हाज़री नहीं मिली।'+
+      '</div>';
 
     return;
+
   }
 
   status.textContent=
-    'कुल '+items.length+' तारीख़/गतिविधियाँ मिलीं।';
+    'कुल '+
+    items.length+
+    ' तारीख़/गतिविधियाँ मिलीं।';
 
   let html=
     '<div class="table-wrap">'+
     '<table>'+
-    '<thead><tr>'+
+    '<thead>'+
+    '<tr>'+
     '<th>तारीख़ / गतिविधि</th>'+
     '<th>हाज़री</th>'+
-    '</tr></thead><tbody>';
+    '</tr>'+
+    '</thead>'+
+    '<tbody>';
 
   items.forEach(item=>{
+
     html+=
       '<tr>'+
-      '<td>'+esc(item.label)+'</td>'+
-      '<td>'+esc(item.value)+'</td>'+
+      '<td>'+
+      esc(item.label)+
+      '</td>'+
+      '<td>'+
+      esc(item.value)+
+      '</td>'+
       '</tr>';
+
   });
 
-  html+='</tbody></table></div>';
+  html+=
+    '</tbody>'+
+    '</table>'+
+    '</div>';
 
   box.innerHTML=html;
+
 }
 
+
 async function logo(){
+
   try{
-    const r=await fetch(
-      './index.html?logo='+Date.now(),
-      {cache:'no-store'}
-    );
+
+    const r=
+      await fetch(
+        './index.html?logo='+
+        Date.now(),
+        {
+          cache:'no-store'
+        }
+      );
 
     if(!r.ok)return;
 
-    const t=await r.text();
+    const t=
+      await r.text();
 
-    const m=t.match(
-      /data:image\/png;base64,[A-Za-z0-9+/=]+/i
-    );
+    const m=
+      t.match(
+        /data:image\/png;base64,[A-Za-z0-9+/=]+/i
+      );
 
     if(m){
-      document.getElementById('topLogo').src=m[0];
-      document.getElementById('watermarkLogo').src=m[0];
+
+      document.getElementById(
+        'watermarkLogo'
+      ).src=m[0];
+
     }
 
   }catch(e){
+
     console.error(e);
+
   }
+
 }
+
 
 async function load(){
 
-  const status=document.getElementById('status');
-  const box=document.getElementById('result');
+  const status=
+    document.getElementById(
+      'status'
+    );
+
+  const box=
+    document.getElementById(
+      'result'
+    );
 
   if(!BADGE_ID){
 
-    status.textContent='Badge ID नहीं मिली।';
+    status.textContent=
+      'Badge ID नहीं मिली।';
 
     box.innerHTML=
       '<div class="error">'+
-      'कृपया 2nd Page से “तारीख़वार हाज़री” खोलें।'+
+      'कृपया 2nd Page से '+
+      '“तारीख़वार हाज़री” खोलें।'+
       '</div>';
 
     return;
+
   }
 
   try{
@@ -903,18 +1412,26 @@ async function load(){
       '/gviz/tq';
 
     const sheetParam=
-      '&sheet='+encodeURIComponent(SHEET_NAME);
+      '&sheet='+
+      encodeURIComponent(
+        SHEET_NAME
+      );
 
-    const cache='&t='+Date.now();
+    const cache=
+      '&t='+Date.now();
 
-    // Main data
+
+    /* MAIN DATA */
+
     const dataUrl=
       baseUrl+
       '?tqx=out:json&headers=0'+
       sheetParam+
       cache;
 
-    // Sheet Row 3 = DAY / NIGHT / BEAS
+
+    /* ACTIVITY ROW */
+
     const activityUrl=
       baseUrl+
       '?tqx=out:json&headers=1'+
@@ -922,7 +1439,9 @@ async function load(){
       '&range=A3:ZZ3'+
       cache;
 
-    // Sheet Row 1 = Month / Year
+
+    /* MONTH ROW */
+
     const monthUrl=
       baseUrl+
       '?tqx=out:json&headers=1'+
@@ -930,42 +1449,76 @@ async function load(){
       '&range=A1:ZZ1'+
       cache;
 
+
     const[
       dataResponse,
       activityResponse,
       monthResponse
-    ]=await Promise.all([
-      fetch(dataUrl,{cache:'no-store'}),
-      fetch(activityUrl,{cache:'no-store'}),
-      fetch(monthUrl,{cache:'no-store'})
-    ]);
+    ]=
+      await Promise.all([
+
+        fetch(
+          dataUrl,
+          {cache:'no-store'}
+        ),
+
+        fetch(
+          activityUrl,
+          {cache:'no-store'}
+        ),
+
+        fetch(
+          monthUrl,
+          {cache:'no-store'}
+        )
+
+      ]);
+
 
     if(!dataResponse.ok){
-      throw Error('Google Sheet data load नहीं हुआ');
+
+      throw Error(
+        'Google Sheet data load नहीं हुआ'
+      );
+
     }
+
 
     if(!activityResponse.ok){
-      throw Error('Activity row load नहीं हुई');
+
+      throw Error(
+        'Activity row load नहीं हुई'
+      );
+
     }
 
+
     if(!monthResponse.ok){
-      throw Error('Month row load नहीं हुई');
+
+      throw Error(
+        'Month row load नहीं हुई'
+      );
+
     }
+
 
     const rows=
       parseGViz(
         await dataResponse.text()
       );
 
+
     const activityValues=
       parseGVizHeaderRow(
         await activityResponse.text()
       );
 
+
     const monthValues=
       parseGVizHeaderRow(
         await monthResponse.text()
       );
+
 
     const badgeRow=
       findBadgeRow(
@@ -973,11 +1526,48 @@ async function load(){
         BADGE_ID
       );
 
+
     if(badgeRow<0){
+
       throw Error(
-        'Badge No. नहीं मिला: '+BADGE_ID
+        'Badge No. नहीं मिला: '+
+        BADGE_ID
       );
+
     }
+
+
+    /* =========================
+       NAME + PARENT NAME
+    ========================= */
+
+    const badgeData=
+      rows[badgeRow]||[];
+
+
+    const personName=
+      clean(
+        badgeData[1]||''
+      );
+
+
+    const parentName=
+      clean(
+        badgeData[2]||''
+      );
+
+
+    document.getElementById(
+      'personName'
+    ).textContent=
+      personName||'—';
+
+
+    document.getElementById(
+      'parentName'
+    ).textContent=
+      parentName||'—';
+
 
     const items=
       makeRecords(
@@ -987,40 +1577,36 @@ async function load(){
         monthValues
       );
 
+
     show(items);
 
-  }catch(e){
+  }
+  catch(e){
 
     console.error(e);
 
     status.textContent=
-      'डेटा लोड नहीं हो सका.';
+      'डेटा लोड नहीं हो सका।';
 
     box.innerHTML=
       '<div class="error">'+
-      '<b>Google Sheet से तारीख़वार हाज़री नहीं आ सकी।</b>'+
-      '<br><br>'+
-      'Google Sheet public/readable होनी चाहिए और '+
-      esc(SHEET_NAME)+
-      ' tab उपलब्ध होना चाहिए।'+
+      '<b>'+
+      'Google Sheet से तारीख़वार हाज़री नहीं आ सकी।'+
+      '</b>'+
       '<br><br>'+
       'Error: '+
       esc(e.message||e)+
       '</div>';
+
   }
+
 }
+
 
 logo();
 load();
+
 </script>
 
-
-  
 </body>
 </html>
-
-
-
-
-
-
