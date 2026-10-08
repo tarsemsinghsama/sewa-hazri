@@ -240,51 +240,56 @@ body{
 }
 
 /* =========================
-   TABLE
+   ATTENDANCE TABLE
 ========================= */
 
 .table-wrap{
   width:100%;
-
   overflow-x:auto;
-
   background:rgba(255,255,255,.72);
 }
 
 table{
   width:100%;
-
+  min-width:100%;
+  table-layout:fixed;
   border-collapse:collapse;
-
-  min-width:390px;
 }
 
 th,
 td{
   border-bottom:1px solid #eadede;
-
-  padding:11px 12px;
-
-  text-align:left;
-
+  padding:11px 9px;
   font-size:15px;
+  vertical-align:middle;
 }
 
 th{
   background:#fff7f7;
-
   color:var(--maroon);
-
   font-weight:800;
-
   white-space:nowrap;
 }
 
-td:last-child,
-th:last-child{
-  text-align:center;
+/* तारीख़ */
+th:nth-child(1),
+td:nth-child(1){
+  width:45%;
+  text-align:left;
+}
 
-  width:90px;
+/* गतिविधि */
+th:nth-child(2),
+td:nth-child(2){
+  width:30%;
+  text-align:center;
+}
+
+/* हाज़री */
+th:nth-child(3),
+td:nth-child(3){
+  width:25%;
+  text-align:center;
 }
 
 tr:last-child td{
@@ -482,22 +487,7 @@ tr:last-child td{
   }
 
 }
-.date-activity{
-  position:relative;
-  padding:11px 9px;
-}
 
-.date-text{
-  display:inline-block;
-}
-
-.activity-text{
-  display:inline-block;
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  font-weight:500;
-}
       
 
 </style>
@@ -1403,13 +1393,14 @@ function show(items){
     html+=
       '<tr>'+
 
-          '<td class="date-activity">'+
-'<span class="date-text">'+
+'<td>'+
 esc(item.date)+
-'</span>'+
-'<span class="activity-text">'+
+'</td>'+
+'<td>'+
 esc(item.activity)+
-'</span>'+
+'</td>'+
+'<td>'+
+esc(item.value)+
 '</td>'+
           
       '<td>'+
