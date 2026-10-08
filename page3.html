@@ -42,22 +42,28 @@ body{
 
 .watermark{
   position:fixed;
+
   z-index:0;
+
   left:50%;
-  top:53%;
+  top:51%;
+
   width:min(82vw,470px);
   height:min(82vw,470px);
+
   transform:translate(-50%,-50%);
+
+  background-position:center;
+  background-size:contain;
+  background-repeat:no-repeat;
+
+  opacity:.10;
+
   pointer-events:none;
-  opacity:.075;
 }
 
-.watermark img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  display:block;
-}
+
+      
 
 /* =========================
    TOP BACK + HOME
@@ -497,9 +503,7 @@ tr:last-child td{
 
 <!-- FIXED WATERMARK -->
 
-<div class="watermark">
-  <img id="watermarkLogo" alt="">
-</div>
+<div class="watermark" id="watermarkLogo"></div>
 
 
 <!-- FIXED BACK + HOME -->
@@ -1446,8 +1450,9 @@ async function logo(){
     if(m){
 
       document.getElementById(
-        'watermarkLogo'
-      ).src=m[0];
+  'watermarkLogo'
+).style.backgroundImage=
+  'url("'+m[0]+'")';
 
     }
 
