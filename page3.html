@@ -482,6 +482,23 @@ tr:last-child td{
   }
 
 }
+.date-activity{
+  position:relative;
+  padding:11px 9px;
+}
+
+.date-text{
+  display:inline-block;
+}
+
+.activity-text{
+  display:inline-block;
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  font-weight:500;
+}
+      
 
 </style>
 </head>
@@ -1384,9 +1401,16 @@ function show(items){
 
     html+=
       '<tr>'+
-      '<td>'+
-      esc(item.label)+
-      '</td>'+
+
+          '<td class="date-activity">'+
+'<span class="date-text">'+
+esc(item.date)+
+'</span>'+
+'<span class="activity-text">'+
+esc(item.activity)+
+'</span>'+
+'</td>'+
+          
       '<td>'+
       esc(item.value)+
       '</td>'+
