@@ -265,9 +265,21 @@ function resultPage(rec){
  <button type="button" class="date-wise-btn" id="dateWiseBtn"> तारीख़वार हाज़री देखें </button> <!-- 3rd पेज का बटन -->
  <div class="updated"><span class="calendar">▣</span>${UPDATED}</div>${footer()}</div>`;
  document.getElementById('back').onclick=()=>{history.pushState({},'',location.pathname);searchPage(rec.badge)};
-    document.getElementById('dateWiseBtn').onclick=()=>{
-    location.href='./page3.html?badge='+encodeURIComponent(rec.badge);
+  
+   document.getElementById('dateWiseBtn').onclick=()=>{
+
+  const url =
+    './page3.html?badge='+
+    encodeURIComponent(rec.badge)+
+    '&name='+
+    encodeURIComponent(rec.name)+
+    '&parent='+
+    encodeURIComponent(rec.parent);
+
+  location.href=url;
+
 };
+   
 }
     
 async function boot(){
