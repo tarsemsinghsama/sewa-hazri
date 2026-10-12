@@ -315,6 +315,7 @@ async function boot(){
       const rec=await loadBadge(q);
 
       if(rec){
+         await logAttendanceCheck(rec); 
         resultPage(rec);
         return;
       }
