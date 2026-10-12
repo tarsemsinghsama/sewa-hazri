@@ -281,7 +281,32 @@ function resultPage(rec){
 };
    
 }
-    
+
+
+async function logAttendanceCheck(rec){
+  try{
+    await fetch(
+      'https://script.google.com/macros/s/AKfycbzqKBjk5N5spoXcp8NpODwXh2_bWYDxrkISKlQ-H27S_RnmdTuvhMDV2m9bhnJWBmmN/exec',
+      {
+        method:'POST',
+        mode:'no-cors',
+        headers:{
+          'Content-Type':'text/plain;charset=utf-8'
+        },
+        body:JSON.stringify({
+          badge:rec.badge,
+          name:rec.name,
+          parent:rec.parent,
+          page:'2nd Page'
+        })
+      }
+    );
+  }catch(e){
+    console.error('Attendance logging failed:',e);
+  }
+}
+
+   
 async function boot(){
   const q=new URLSearchParams(location.search).get('badge');
 
